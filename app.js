@@ -1,12 +1,15 @@
-const express = require('express')
-const app = express()
-app.set('views', __dirname + '/public/views');
-app.set('view engine', 'pug');
+require('marko/node-require'); // Allow Node.js to require and load `.marko` files
+
+var express = require('express');
+var markoExpress = require('marko/express');
+var template = require('./public/views/index.marko');
+
+var app = express();
+
+app.use(markoExpress()); // enable res.marko(template, data)
 
 app.get('/', function (req, res) {
-    res.render('index', { title: 'Hey', message: 'Hello there!'});
-})
+  res.marko(template, { name: 'toni' });
+});
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
-})
+app.listen(8080);

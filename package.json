@@ -1,14 +1,29 @@
 {
   "name": "samoleti",
   "version": "1.0.0",
-  "description": "Plane ticket search ",
-  "main": "index.js",
+  "description": "samoletni bileti na niski ceni",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "semistandard && node my-normal-tests-littered-with-semicolons.js"
   },
-  "author": "toniuyt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toniuyt123/samoleti.git"
+  },
+  "keywords": [
+    "plane"
+  ],
+  "author": "toniuyt123",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toniuyt123/samoleti/issues"
+  },
+  "homepage": "https://github.com/toniuyt123/samoleti#readme",
   "dependencies": {
-    "pug": "^2.0.4"
+    "express": "^4.17.1",
+    "marko": "^4.18.10"
+  },
+  "devDependencies": {
+    "semistandard": "^13.0.1"
   }
 }
