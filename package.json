@@ -1,0 +1,14 @@
+{
+  "name": "samoleti",
+  "version": "1.0.0",
+  "description": "Plane ticket search ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "toniuyt",
+  "license": "ISC",
+  "dependencies": {
+    "pug": "^2.0.4"
+  }
+}
