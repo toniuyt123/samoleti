@@ -7,9 +7,10 @@ class DBManager {
     this.saltRounds = 10;
   }
 
-  async findUser(email, passoword) {
-    const user = await this.client.query('SELECT * FROM users WHERE email = $1', [email]);
-    let auth = bcrypt.compare(passoword, user.password);
+  async findUser (email) {
+    const res = await this.client.query('SELECT * FROM users WHERE email = $1', [email]);
+
+    return res.rows[0];
   }
 
   async addUser (username, email, phone, password) {
@@ -71,6 +72,23 @@ class DBManager {
     } finally {
       await this.client.end();
     }
+  }
+
+  async login (userId, key) {
+    const isUnique = await this.client.query(`SELECT key FROM sessions WHERE key = $1;`, [key]);
+    if (isUnique.rows.length) {
+      return false;
+    }
+    return this.client.query(`INSERT INTO sessions(user_id, key, logged) VALUES ($1, $2, true) ON CONFLICT (user_id)
+                              DO UPDATE SET logged = true, key = $2;`, [userId, key]);
+  }
+
+  logout (key) {
+    return this.client.query(`UPDATE sessions SET logged = false WHERE key = $1 AND logged = true;`, [key]);
+  }
+
+  getSession (key) {
+    return this.client.query(`SELECT * FROM sessions WHERE key = $1`, [key]);
   }
 
   createTables () {
