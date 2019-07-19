@@ -34,6 +34,7 @@
     "request-promise-native": "^1.0.7"
   },
   "devDependencies": {
+    "node-postgres-named": "^2.4.1",
     "nodemon": "^1.19.1",
     "semistandard": "^13.0.1"
   }

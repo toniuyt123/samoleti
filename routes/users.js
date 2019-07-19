@@ -7,14 +7,11 @@ const crypto = require('crypto');
 const loginware = require('../middleware/users.js').loginware;
 
 module.exports = function (app) {
-  app.use(loginware);
-  app.get('/register', function (req, res) {
-    if (req.authenticated) { res.redirect('/'); return; }
+  app.get('/register', loginware, (req, res) => {
     res.marko(registerTemplate);
   });
 
-  app.post('/register', function (req, res) {
-    if (req.authenticated) { res.redirect('/'); return; }
+  app.post('/register', loginware, (req, res) => {
     const username = req.body.username;
     const email = req.body.email;
     const phone = req.body.phone;
@@ -32,41 +29,47 @@ module.exports = function (app) {
     }
 
     if (error) {
-      res.marko(registerTemplate, { error: error });
+      res.marko(registerTemplate, {
+        error: error,
+      });
       return;
     }
 
-    db.addUser(username, email, phone, password).catch(err => console.log(err));
+    db.addUser(username, email, phone, password)
+      .catch(err => console.log(err));
 
     res.redirect('/');
   });
 
-  app.get('/login', function (req, res) {
-    if (req.authenticated) { res.redirect('/'); return; }
+  app.get('/login', loginware, (req, res) => {
+    if (req.authenticated) return res.redirect('/');
     res.marko(loginTemplate);
   });
 
-  app.post('/login', async function (req, res) {
-    if (req.authenticated) { res.redirect('/'); return; }
+  app.post('/login', loginware, async (req, res) => {
+    if (req.authenticated) return res.redirect('/');
     const email = req.body.email;
     const password = req.body.password;
-
     const user = await db.findUser(email);
+
     if (!user) {
-      res.marko(loginTemplate, { error: 'Email not found.' });
-      return;
+      return res.marko(loginTemplate, {
+        error: 'Email not found.',
+      });
     }
 
     const match = await bcrypt.compare(password, user.password);
+
     if (match) {
       do {
         var key = generateKey();
-        var r = await db.login(user.id, key);
-        console.log(key, r);
-      } while (!r);
+        var logged = await db.login(user.id, key);
+      } while (!logged);
       res.cookie('sessionKey', key).redirect('/');
     } else {
-      res.marko(loginTemplate, { error: 'Invalid password.' });
+      res.marko(loginTemplate, {
+        error: 'Invalid password.',
+      });
     }
   });
 

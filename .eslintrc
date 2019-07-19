@@ -1,3 +1,6 @@
 {
-    "extends":["semistandard"]
+    "extends":["semistandard"],
+    "rules": {
+        "comma-dangle": ["error", "always"]
+    }
 }

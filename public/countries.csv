@@ -1,4 +1,4 @@
-Country_Name,Official_Name_English,A2,ISO3166_1_Alpha_3,M49,ITU,MARC,WMO,DS,Dial,FIFA,FIPS,GAUL,IOC,ISO4217_Currency_Alphabetic_Code,ISO4217_Currency_Country_Name,ISO4217_Currency_Minor_Unit,ISO4217_Currency_Name,ISO4217_Currency_Numeric_Code,Is_Independent,Capital,Continent,TLD,Languages,Geo_Name_ID,EDGAR
+Name,Official_Name_English,A2,ISO3166_1_Alpha_3,M49,ITU,MARC,WMO,DS,Dial,FIFA,FIPS,GAUL,IOC,ISO4217_Currency_Alphabetic_Code,ISO4217_Currency_Country_Name,ISO4217_Currency_Minor_Unit,ISO4217_Currency_Name,ISO4217_Currency_Numeric_Code,Is_Independent,Capital,Continent,TLD,Languages,Geo_Name_ID,EDGAR
 Afghanistan,Afghanistan,AF,AFG,4,AFG,af,AF,AFG,93,AFG,AF,1,AFG,AFN,AFGHANISTAN,2,Afghani,971,Yes,Kabul,AS,.af,"fa-AF,ps,uz-AF,tk",1149361,B2
 Albania,Albania,AL,ALB,8,ALB,aa,AB,AL,355,ALB,AL,3,ALB,ALL,ALBANIA,2,Lek,8,Yes,Tirana,EU,.al,"sq,el",783754,B3
 Algeria,Algeria,DZ,DZA,12,ALG,ae,AL,DZ,213,ALG,AG,4,ALG,DZD,ALGERIA,2,Algerian Dinar,12,Yes,Algiers,AF,.dz,ar-DZ,2589581,B4
