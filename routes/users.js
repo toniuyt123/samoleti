@@ -3,8 +3,9 @@ const loginTemplate = require('../views/users/login.marko');
 const DBManager = require('../util/dbManager.js');
 const bcrypt = require('bcrypt');
 const db = new DBManager();
-const crypto = require('crypto');
 const loginware = require('../middleware/users.js').loginware;
+const validateEmail = require('../util/util.js').validateEmail;
+const generateKey = require('../util/util.js').generateKey;
 
 module.exports = function (app) {
   app.get('/register', loginware, (req, res) => {
@@ -72,15 +73,4 @@ module.exports = function (app) {
       });
     }
   });
-
-  function validateEmail (email) {
-    var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  }
-
-  function generateKey () {
-    var sha = crypto.createHash('sha256');
-    sha.update(Math.random().toString());
-    return sha.digest('hex');
-  }
 };
