@@ -40,10 +40,10 @@ async function test () {
     {
       method: 'post',
       url: 'http://localhost:8080/api',
-      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "AKL", "to": "CHC", "departureStart": "23/07/2019", "departureEnd": "26/07/2019" }, "id": 1 }',
+      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "CGN", "departureStart": "23/07/2019", "departureEnd": "23/07/2019 12:59:59" }, "id": 1 }',
       headers: headersOpt,
     });
   console.log(res);
 }
 
-test(); 
+test();

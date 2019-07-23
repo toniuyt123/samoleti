@@ -11,8 +11,10 @@ import Base from './base.marko';
 	</@heading>
 	<@content>
     <div id='index-container'>
-      <h1>Planes.com</h1>
-      <h2>Find all the flights on the cheapest prices</h2>
+      <div id="fade-in" class="notLoaded">
+        <h1>Planes.com</h1>
+        <h2>Find all the flights on the cheapest prices</h2>
+      </div>
       <form method='POST' action='/explore' id='explore-form'>
         <div class="row">
           <div class="col">

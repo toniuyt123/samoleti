@@ -1,6 +1,12 @@
 {
     "extends":["semistandard"],
     "rules": {
-        "comma-dangle": ["error", "always"]
+        "comma-dangle": ["error", {
+            "arrays": "never",
+            "objects": "always",
+            "imports": "never",
+            "exports": "never",
+            "functions": "never"
+        }],
     }
 }

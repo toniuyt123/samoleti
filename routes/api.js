@@ -1,5 +1,4 @@
 const rawBody = require('../middleware/rawBody.js').rawBody;
-const transaction = require('../util/util.js').transactionWrapper;
 const named = require('node-postgres-named');
 const pool = require('../util/db.js');
 
@@ -11,7 +10,7 @@ const methods = {
 
       const res = (await client.query(`
         SELECT airport_from, airport_to, id FROM Flights
-        WHERE dtime >= timestamp $departureStart AND dtime <= timestamp $departureEnd`, {
+        WHERE dTime >= $departureStart AND dTime <= $departureEnd`, {
         departureStart: params.departureStart,
         departureEnd: params.departureEnd,
       })).rows;
@@ -21,18 +20,44 @@ const methods = {
         const from = res[i].airport_from;
         const to = res[i].airport_to;
 
-        if (!graph[from]) graph[from] = {};
+        if (!graph[from]) graph[from] = [];
         if (!graph[from][to]) graph[from][to] = [];
 
-        graph[from][to].push(res[i].id);
+        graph[from].push([to, res[i].id]);
       }
 
+      findAllPaths(graph, 'SOF', 'CGN');
       resolve(graph);
     });
   },
 };
 
-function constructDataFromFlight (flight) {
+function findAllPaths (graph, start, end) {
+  let queue = [];
+  queue.push([start]);
+  while (queue.length) {
+    let path = queue.pop();
+    let lastNode = path[path.length - 1];
+
+    if (lastNode === end) {
+      console.log(path);
+    }
+
+    if (!graph[lastNode]) {
+      continue;
+    }
+
+    for (let i = 0; i < graph[lastNode].length; i++) {
+      if (!path.includes(graph[lastNode][i][0])) {
+        let newPath = [...path];
+        newPath.push(graph[lastNode][i][0]);
+        queue.unshift(newPath);
+      }
+    }
+  }
+}
+
+function dataFromFlight (flight) {
   return {
     id: flight.id,
     // number: flight.number,
