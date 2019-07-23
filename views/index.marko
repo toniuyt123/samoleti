@@ -1,10 +1,55 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <title>marko-express</title>
-  </head>
-  <body>
-    Hello ${data.name}!
-  </body>
-</html>
+import Base from './base.marko';
+
+<${Base}>
+	<@heading>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+    <script src='/js/index.js'> </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+	</@heading>
+	<@content>
+    <div id='index-container'>
+      <h1>Planes.com</h1>
+      <h2>Find all the flights on the cheapest prices</h2>
+      <form method='POST' action='/explore' id='explore-form'>
+        <div class="row">
+          <div class="col">
+            <b>From:</b>
+          </div>
+          <div class="col">
+            <b>To:</b>
+          </div>
+          <div class="col">
+            <b>Departure date:</b>
+          </div>
+          <div class="col">
+            <b>Return date:</b>
+          </div>
+          <div class="col">
+            
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <input type="text" class="form-control" placeholder="From">
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" placeholder="To">
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" name="daterange-departure">
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" name="daterange-return">
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary btn-block"> Search </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+	</@content>
+</>

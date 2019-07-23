@@ -1,0 +1,13 @@
+#explore-form {
+  padding: 10px;
+  background: white;
+  border-radius: 5px;
+}
+
+#index-container {
+  padding: 15px;
+  background: url('../img/index_panorama.jpeg');
+  height: 40%;
+  width: 100%;
+  background-size: auto 100%;
+}

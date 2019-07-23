@@ -4,34 +4,52 @@ const named = require('node-postgres-named');
 const pool = require('../util/db.js');
 
 const methods = {
-  findRoute: (params) => {
+  findRoute: function findRoute (params, route = []) {
     return new Promise(async (resolve) => {
       var client = await pool.connect();
       named.patch(client);
 
-      const res = await client.query(`
-        SELECT * FROM Flights
-        WHERE airport_from = $from AND airport_to = $to`, {
-        from: params.from,
-        to: params.to,
-      });
+      const res = (await client.query(`
+        SELECT airport_from, airport_to, id FROM Flights
+        WHERE dtime >= timestamp $departureStart AND dtime <= timestamp $departureEnd`, {
+        departureStart: params.departureStart,
+        departureEnd: params.departureEnd,
+      })).rows;
+      var graph = {};
 
-      var data = [];
-      for (var i = 0; i < res.rows.length; i++) {
-        var route = {};
-        route.form = params.from;
-        route.to = params.to;
-        route.route = [];
-        data.push(route);
+      for (let i = 0; i < res.length; i++) {
+        const from = res[i].airport_from;
+        const to = res[i].airport_to;
+
+        if (!graph[from]) graph[from] = {};
+        if (!graph[from][to]) graph[from][to] = [];
+
+        graph[from][to].push(res[i].id);
       }
 
-      resolve(data);
+      resolve(graph);
     });
   },
 };
 
+function constructDataFromFlight (flight) {
+  return {
+    id: flight.id,
+    // number: flight.number,
+    from: flight.airport_from,
+    to: flight.airport_to,
+    /* price: flight.price,
+    dTime: flight.dTime,
+    aTime: flight.aTime,
+    duration: flight.duration,
+    distance: flight.distance,
+    class: flight.class,
+    airline_id: flight.airline_id, */
+  };
+}
+
 module.exports = function (app) {
-  app.post('/rpc', rawBody, async (req, res) => {
+  app.post('/api', rawBody, async (req, res) => {
     let jsonResult = [];
     let json = JSON.parse(req.rawBody);
 

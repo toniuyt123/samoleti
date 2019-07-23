@@ -16,19 +16,19 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
 function render(input, out, __component, component, state) {
   var data = input;
 
-  out.w("<html><head><link href=\"//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" rel=\"stylesheet\" id=\"bootstrap-css\"><script src=\"//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js\"></script><script src=\"//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>");
+  out.w("<html><head><link href=\"//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css\" rel=\"stylesheet\" id=\"bootstrap-css\"><script src=\"//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js\"></script><script src=\"//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script><link href=\"/styles/styles.css\" rel=\"stylesheet\"><script src=\"https://code.jquery.com/jquery-3.4.1.js\" integrity=\"sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=\" crossorigin=\"anonymous\"></script>");
 
-  marko_dynamicTag(out, input.heading, null, null, null, null, __component, "5");
+  marko_dynamicTag(out, input.heading, null, null, null, null, __component, "7");
 
   out.w("</head><body>");
 
   component_globals_tag({}, out);
 
-  marko_dynamicTag(out, input.content, null, null, null, null, __component, "7");
+  marko_dynamicTag(out, input.content, null, null, null, null, __component, "9");
 
   init_components_tag({}, out);
 
-  await_reorderer_tag({}, out, __component, "8");
+  await_reorderer_tag({}, out, __component, "10");
 
   out.w("</body></html>");
 }
