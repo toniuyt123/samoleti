@@ -1,0 +1,49 @@
+import Base from '../base.marko';
+import SearchBar from './searchBar.marko';
+
+<${Base}>
+	<@content>
+    <div class='container'>
+      <div class="row">
+        <div class="col">
+          <${SearchBar}>
+          </>
+        </div>
+      </div>
+
+      <div class='row'>
+        <div class='col-lg-3 filters-container'>
+          <p>filters</p>
+        </div>
+        <div class='col-lg-6 search-result-container'>
+          <if (input.result.length == 0)>
+            <p class="text-muted font-weight-bold text-center">No flights found &#x2639;</p>
+          </if>
+          <for|flight| of=input.result>
+              <div class="flight-container">
+                <div class='row'>
+                  <div class="col">
+                    <p><span class="text-primary font-weight-bold">${flight.from}</span> &#x21A6;
+                        <span class="text-primary font-weight-bold">${flight.to}</span></p>
+                  </div>
+                  <div class='col'>
+                    <p class="price font-weight-bold">$${flight.totalPrice}</p>
+                  </div>
+                </div>
+                <div class='row'>
+                  <div class="col-lg-10">
+                    <p><span class="font-weight-bold">${flight.dTime.getHours() + ':' + flight.dTime.getMinutes()}</span> -
+                        <span class="font-weight-bold">${flight.aTime.getHours() + ':' + flight.aTime.getMinutes()}</span></p>
+                    <p class='text-muted'>${flight.dTime}</p>
+                  </div>
+                </div>
+              </div>
+          </for>
+        </div>
+        <div class="col-lg-3">
+          <p>ad space</p>
+        </div>
+      </div>
+    </div>
+	</@content>
+</>

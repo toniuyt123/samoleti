@@ -1,0 +1,41 @@
+<script src='/js/datepicker.js'> </script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+	
+<form method='POST' action='/search' id='explore-form'>
+  <div class="row">
+    <div class="col">
+      <b>From:</b>
+    </div>
+    <div class="col">
+      <b>To:</b>
+    </div>
+    <div class="col">
+      <b>Departure date:</b>
+    </div>
+    <div class="col">
+      <b>Return date:</b>
+    </div>
+    <div class="col">
+      
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <input type="text" class="form-control" name="from" placeholder="From">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="to" placeholder="To">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="departureRange">
+    </div>
+    <div class="col">
+      <input type="text" class="form-control" name="returnRange">
+    </div>
+    <div class="col">
+      <button type="submit" class="btn btn-primary btn-block"> Search </button>
+    </div>
+  </div>
+</form>

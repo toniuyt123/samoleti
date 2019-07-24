@@ -126,7 +126,7 @@ class DBManager {
           airport_from CHAR(3) NOT NULL REFERENCES Airports(iata),
           airport_to CHAR(3) NOT NULL REFERENCES Airports(iata),
           dTime TIMESTAMP NOT NULL,
-          aTtime TIMESTAMP NOT NULL,
+          aTime TIMESTAMP NOT NULL,
           duration INTERVAL NOT NULL,
           class CHAR NOT NULL,
           distance DECIMAL(8,2) NOT NULL CHECK (distance > 0.0),

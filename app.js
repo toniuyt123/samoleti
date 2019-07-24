@@ -6,8 +6,6 @@ const markoExpress = require('marko/express');
 const template = require('./views/index.marko');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const DBManager = require('./util/dbManager.js');
-const db = new DBManager();
 
 var app = express();
 
@@ -25,7 +23,7 @@ app.get('/', (req, res) => {
 
 require('./routes/users.js')(app);
 require('./routes/api.js')(app);
-require('./routes/explore.js')(app);
+require('./routes/search.js')(app);
 
 app.listen(8080);
 

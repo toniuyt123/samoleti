@@ -1,6 +1,18 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 html,
 body {
-  height: 100%;
+  background: #e9ebf0;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+#site-content {
+  flex: 1;
 }
 
 #sticky-footer {
@@ -16,7 +28,7 @@ body {
 #index-container {
   padding: 15px;
   background: url('../img/index_panorama.jpeg');
-  height: 40%;
+  height: 25vw;
   width: 100%;
   background-size: auto 100%;
 }
@@ -31,4 +43,28 @@ body {
 #fade-in.notLoaded {
   left: -350px;
   opacity: 0;
+}
+
+.price {
+  text-decoration: bold;
+  text-align: right;
+}
+
+.flight-container {
+  padding:15px;
+  margin-bottom: 15px;
+  border: 1px solid #dcdee3;
+  background:white; 
+  box-shadow: 0px 0px 0px gray;
+  transition: 0.5s;
+}
+
+.flight-container:hover {
+  box-shadow: 0px 0px 7px gray;
+  transition: 0.5s;
+  cursor: pointer;
+}
+
+.search-result-container {
+  padding:15px;
 }
