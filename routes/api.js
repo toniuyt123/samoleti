@@ -26,21 +26,50 @@ const methods = {
         graph[from].push([to, res[i].id]);
       }
 
-      findAllPaths(graph, 'SOF', 'CGN');
-      resolve(graph);
+      const paths = findAllPaths(graph, 'SOF', 'CGN');
+      let flights = [];
+      for (let i = 0; i < paths.length; i++) {
+        let data = {
+          from: params.from,
+          to: params.to,
+        };
+        let route = [];
+        let priceSum = 0;
+        let distanceSum = 0;
+
+        for (let j = 1; j < paths[i].length; j++) {
+          let flight = (await client.query(`
+            SELECT * FROM Flights
+            WHERE id = $id`, {
+            id: paths[i][j][1],
+          })).rows[0];
+          let flightData = dataFromFlight(flight);
+
+          priceSum += parseFloat(flightData.price);
+          distanceSum += parseFloat(flightData.distance);
+          route.push(flightData);
+        }
+        data['totalPrice'] = priceSum;
+        data['totalDistance'] = Math.round(distanceSum * 100) / 100;
+        data['route'] = route;
+        flights.push(data);
+      }
+      resolve(flights);
     });
   },
 };
 
-function findAllPaths (graph, start, end) {
+function findAllPaths (graph, from, to) {
   let queue = [];
-  queue.push([start]);
+  queue.push([[from, '']]);
+  let paths = [];
+
   while (queue.length) {
     let path = queue.pop();
-    let lastNode = path[path.length - 1];
+    let lastNode = path[path.length - 1][0];
 
-    if (lastNode === end) {
-      console.log(path);
+    if (lastNode === to) {
+      paths.push(path);
     }
 
     if (!graph[lastNode]) {
@@ -50,26 +79,29 @@ function findAllPaths (graph, start, end) {
     for (let i = 0; i < graph[lastNode].length; i++) {
       if (!path.includes(graph[lastNode][i][0])) {
         let newPath = [...path];
-        newPath.push(graph[lastNode][i][0]);
+        let node = graph[lastNode][i];
+        newPath.push([node[0], node[1]]);
         queue.unshift(newPath);
       }
     }
   }
+
+  return paths;
 }
 
 function dataFromFlight (flight) {
   return {
     id: flight.id,
-    // number: flight.number,
+    number: flight.number,
     from: flight.airport_from,
     to: flight.airport_to,
-    /* price: flight.price,
+    price: flight.price,
     dTime: flight.dTime,
     aTime: flight.aTime,
     duration: flight.duration,
     distance: flight.distance,
     class: flight.class,
-    airline_id: flight.airline_id, */
+    airline_id: flight.airline_id,
   };
 }
 

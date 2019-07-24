@@ -20,13 +20,12 @@ app.use('/img', express.static(path.join(__dirname, '/public/img')));
 app.use('/js', express.static(path.join(__dirname, '/public/js')));
 
 app.get('/', (req, res) => {
-  // db.scanForFlights().catch((err) => console.log(err));
-  db.populateCountries();
   res.marko(template, { name: 'toni', });
 });
 
 require('./routes/users.js')(app);
 require('./routes/api.js')(app);
+require('./routes/explore.js')(app);
 
 app.listen(8080);
 
@@ -40,10 +39,10 @@ async function test () {
     {
       method: 'post',
       url: 'http://localhost:8080/api',
-      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "CGN", "departureStart": "23/07/2019", "departureEnd": "23/07/2019 12:59:59" }, "id": 1 }',
+      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "CGN", "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59" }, "id": 1 }',
       headers: headersOpt,
     });
   console.log(res);
 }
 
-test();
+// test();
