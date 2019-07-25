@@ -13,9 +13,16 @@ module.exports = function (app) {
       departureEnd: departureRange[1],
     };
 
-    const result = await findRoute(params);
-    res.marko(resultTemplate, {
-      result: result,
-    });
+    try {
+      const result = await findRoute(params);
+      res.marko(resultTemplate, {
+        result: result,
+      });
+    } catch (err) {
+      console.log(err)
+      res.marko(resultTemplate, {
+        result: [],
+      });
+    }
   });
 };

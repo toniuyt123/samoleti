@@ -19,7 +19,7 @@ function render(input, out, __component, component, state) {
     return {
         heading: {
             renderBody: function(out) {
-              out.w("<link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.0.8/css/all.css\"><script src=\"/js/index.js\"> </script>");
+              out.w("<link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.0.8/css/all.css\"><script src=\"/js/animations.js\"> </script>");
             }
           },
         content: {

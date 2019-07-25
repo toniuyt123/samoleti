@@ -1,8 +1,13 @@
 const named = require('node-postgres-named');
 const pool = require('../util/db.js');
+const assert = require('assert');
+const weather = require('./integrations/darkSky.js').weather;
 
 module.exports = {
   findRoute: async (params) => {
+    assert(params.from);
+    assert(params.to);
+
     var client = await pool.connect();
     named.patch(client);
 
@@ -26,6 +31,8 @@ module.exports = {
 
     const paths = module.exports.findAllPaths(graph, params.from, params.to);
     let flights = [];
+    let airportsWeathers = {};
+
     for (let i = 0; i < paths.length; i++) {
       let data = {
         from: params.from,
@@ -45,6 +52,18 @@ module.exports = {
 
         if (j === 1) {
           data['dTime'] = flightData.dTime;
+          const airport = (await client.query(`
+            SELECT * FROM airports
+            WHERE iata = $iata`, {
+            iata: flightData.from,
+          })).rows[0];
+
+          if (!Object.keys(airportsWeathers).includes(airport.iata)) {
+            const forecast = JSON.parse(await weather(airport.lat, airport.lng, flightData.dTime));
+            airportsWeathers[airport.iata] = forecast.daily.data[0].summary;
+          }
+
+          data['dWeather'] = airportsWeathers[flightData.from];
         }
         if (j === paths[i].length - 1) {
           data['aTime'] = flightData.aTime;
@@ -63,7 +82,7 @@ module.exports = {
     return flights;
   },
 
-  findAllPaths: (graph, from, to, maxStopovers = 2) => {
+  findAllPaths: (graph, from, to, maxStopovers = 3) => {
     let queue = [];
     queue.push([[from, '']]);
     let paths = [];

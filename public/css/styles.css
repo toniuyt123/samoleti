@@ -86,3 +86,7 @@ body {
 .top-nav {
   max-width: 100%;
 }
+
+.detailed-info {
+  display:hidden;
+}

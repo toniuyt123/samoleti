@@ -38,7 +38,7 @@ app.use(function (req, res) {
 // Handle 500
 app.use(function (error, req, res, next) {
   const errorTemplate = require('./views/errorPages/500.marko');
-
+  console.log(error)
   res.status(500);
   res.marko(errorTemplate, {
     title: '500: Internal Server Error',

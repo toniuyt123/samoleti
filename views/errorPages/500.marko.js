@@ -7,8 +7,7 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     marko_renderer = components_helpers.r,
     marko_defineComponent = components_helpers.c,
     Base = require("../base.marko"),
-    module_TopNav = require("./topNav.marko"),
-    TopNav = module_TopNav.default || module_TopNav,
+    TopNav = require("../topNav.marko"),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_escapeXml = marko_helpers.x,
     marko_dynamicTag = marko_helpers.d;
@@ -46,6 +45,7 @@ marko_template.Component = marko_defineComponent({}, marko_template._);
 marko_template.meta = {
     id: "/samoleti$1.0.0/views/errorPages/500.marko",
     tags: [
-      "../base.marko"
+      "../base.marko",
+      "../topNav.marko"
     ]
   };

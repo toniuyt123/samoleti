@@ -18,11 +18,16 @@ function render(input, out, __component, component, state) {
 
   marko_dynamicTag(out, Base, function() {
     return {
+        heading: {
+            renderBody: function(out) {
+              out.w("<script src=\"/js/searchResults.js\"> </script>");
+            }
+          },
         content: {
             renderBody: function(out) {
               out.w("<div class=\"container\"><div class=\"row\"><div class=\"col\">");
 
-              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "5");
+              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "7");
 
               out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><p>filters</p></div><div class=\"col-lg-6 search-result-container\">");
 
@@ -42,12 +47,14 @@ function render(input, out, __component, component, state) {
                   "</span></p></div><div class=\"col\"><p class=\"price font-weight-bold\">$" +
                   marko_escapeXml(flight.totalPrice) +
                   "</p></div></div><div class=\"row\"><div class=\"col-lg-10\"><p><span class=\"font-weight-bold\">" +
-                  marko_escapeXml((flight.d_time.getHours() + ":") + flight.d_time.getMinutes()) +
+                  marko_escapeXml((flight.dTime.getHours() + ":") + flight.dTime.getMinutes()) +
                   "</span> - <span class=\"font-weight-bold\">" +
-                  marko_escapeXml((flight.a_time.getHours() + ":") + flight.a_time.getMinutes()) +
+                  marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
                   "</span></p><p class=\"text-muted\">" +
-                  marko_escapeXml(flight.d_time) +
-                  "</p></div></div></div>");
+                  marko_escapeXml(flight.dTime) +
+                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><hr>" +
+                  marko_escapeXml(flight.dWeather) +
+                  "</div></div>");
               });
 
               out.w("</div><div class=\"col-lg-3\"><p>ad space</p></div></div></div>");
