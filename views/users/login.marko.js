@@ -31,7 +31,7 @@ function render(input, out, __component, component, state) {
                   "</p>");
               }
 
-              out.w("<form action=\"/login\" method=\"POST\"><div class=\"form-group\"><div class=\"form-group\"><div class=\"input-group-prepend\"><span class=\"input-group-text\"><i class=\"fa fa-envelope\"></i></span></div><input class=\"form-control\" placeholder=\"Email address\" type=\"email\" name=\"email\"></div><div class=\"form-group input-group\"><div class=\"input-group-prepend\"><span class=\"input-group-text\"><i class=\"fa fa-lock\"></i></span></div><input class=\"form-control\" placeholder=\"Password\" type=\"password\" name=\"password\"></div><div class=\"form-group\"><button type=\"submit\" class=\"btn btn-primary btn-block\">Log in</button></div><p class=\"text-center\">Don't have an account? <a href=\"/register\">Register</a></p></div></form></article></div></div>");
+              out.w("<form action=\"/login\" method=\"POST\"><div class=\"form-group input-group\"><div class=\"input-group-prepend\"><span class=\"input-group-text\"><i class=\"fa fa-envelope\"></i></span></div><input class=\"form-control\" placeholder=\"Email address\" type=\"email\" name=\"email\"></div><div class=\"form-group input-group\"><div class=\"input-group-prepend\"><span class=\"input-group-text\"><i class=\"fa fa-lock\"></i></span></div><input class=\"form-control\" placeholder=\"Password\" type=\"password\" name=\"password\"></div><div class=\"form-group\"><button type=\"submit\" class=\"btn btn-primary btn-block\">Log in</button></div><p class=\"text-center\">Don't have an account? <a href=\"/register\">Register</a></p></form></article></div></div>");
             }
           }
       };

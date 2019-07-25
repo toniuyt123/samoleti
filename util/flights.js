@@ -8,7 +8,7 @@ module.exports = {
 
     const res = (await client.query(`
       SELECT airport_from, airport_to, id FROM Flights
-      WHERE dTime >= $departureStart AND dTime <= $departureEnd`, {
+      WHERE d_time >= $departureStart AND d_time <= $departureEnd`, {
       departureStart: params.departureStart,
       departureEnd: params.departureEnd,
     })).rows;
@@ -101,12 +101,12 @@ module.exports = {
       from: flight.airport_from,
       to: flight.airport_to,
       price: flight.price,
-      dTime: flight.dtime,
-      aTime: flight.atime,
+      dTime: flight.d_time,
+      aTime: flight.a_time,
       duration: flight.duration,
       distance: flight.distance,
       class: flight.class,
-      airline_id: flight.airline_id,
+      airlineId: flight.airline_id,
     };
   },
 };

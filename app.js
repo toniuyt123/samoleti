@@ -25,6 +25,27 @@ require('./routes/users.js')(app);
 require('./routes/api.js')(app);
 require('./routes/search.js')(app);
 
+// Handle 404
+app.use(function (req, res) {
+  const errorTemplate = require('./views/errorPages/404.marko');
+
+  res.status(400);
+  res.marko(errorTemplate, {
+    title: '404: File Not Found',
+  });
+});
+
+// Handle 500
+app.use(function (error, req, res, next) {
+  const errorTemplate = require('./views/errorPages/500.marko');
+
+  res.status(500);
+  res.marko(errorTemplate, {
+    title: '500: Internal Server Error',
+    error: error,
+  });
+});
+
 app.listen(8080);
 
 const request = require('request-promise-native');
@@ -44,3 +65,7 @@ async function test () {
 }
 
 // test();
+/*
+const weatherAPI = require('./util/integrations/darkSky.js');
+weatherAPI.weather(42.697365, 23.305037);
+*/

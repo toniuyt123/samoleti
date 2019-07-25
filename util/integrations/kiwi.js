@@ -16,8 +16,8 @@ module.exports = {
 
         for (let j = 0; j < generalData.length; j++) {
           const flight = generalData[j].route[0];
-          const dTime = new Date(flight.dTime * 1000);
-          const aTime = new Date(flight.aTime * 1000);
+          const dTime = new Date(flight.d_time * 1000);
+          const aTime = new Date(flight.a_time * 1000);
 
           await client.query(`
             INSERT INTO airports

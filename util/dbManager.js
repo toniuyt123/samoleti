@@ -1,10 +1,18 @@
 const bcrypt = require('bcrypt');
 const transaction = require('./util.js').transactionWrapper;
+const named = require('node-postgres-named');
 
 class DBManager {
   constructor () {
     this.pool = require('./db.js');
     this.saltRounds = 10;
+  }
+
+  async getClient () {
+    var client = await this.pool.connect();
+    named.patch(client);
+
+    return client;
   }
 
   async findUser (email) {
@@ -58,7 +66,7 @@ class DBManager {
     })).rows;
 
     if (session) { return session[0]; }
-    return false;
+    return undefined;
   }
 
   async populateCountries () {
@@ -92,8 +100,8 @@ class DBManager {
         CREATE TABLE IF NOT EXISTS Plans (
           id BIGSERIAL PRIMARY KEY,
           name TEXT NOT NULL UNIQUE,
-          priceMonthly NUMERIC(8,2) NOT NULL,
-          priceYearly NUMERIC(8,2) NOT NULL
+          price_monthly NUMERIC(8,2) NOT NULL,
+          price_yearly NUMERIC(8,2) NOT NULL
         )`);
       await client.query(`
         CREATE TABLE IF NOT EXISTS Subscriptions (
@@ -128,8 +136,8 @@ class DBManager {
           number BIGINT NOT NULL,
           airport_from CHAR(3) NOT NULL REFERENCES Airports(iata),
           airport_to CHAR(3) NOT NULL REFERENCES Airports(iata),
-          dTime TIMESTAMP NOT NULL,
-          aTime TIMESTAMP NOT NULL,
+          d_time TIMESTAMP NOT NULL,
+          a_time TIMESTAMP NOT NULL,
           duration INTERVAL NOT NULL,
           class CHAR NOT NULL,
           distance DECIMAL(8,2) NOT NULL CHECK (distance > 0.0),

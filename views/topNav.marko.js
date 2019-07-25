@@ -10,7 +10,7 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
 function render(input, out, __component, component, state) {
   var data = input;
 
-  out.w("<div class=\"container top-nav\"><div class=\"row w-100\"><div class=\"col-10\"></div><div class=\"col-2 float-right\" id=\"my-profile\"><img id=\"icon\" src=\"/img/profile_icon.png\"><span>My profile</span></div></div></div>");
+  out.w("<div class=\"container top-nav\"><div class=\"row w-100\"><div class=\"col-10\"></div><div href=\"/account\" class=\"col-2 float-right\" id=\"my-profile\"><img id=\"icon\" src=\"/img/profile_icon.png\"><span>My profile</span></div></div></div>");
 }
 
 marko_template._ = marko_renderer(render, {

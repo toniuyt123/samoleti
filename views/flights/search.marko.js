@@ -42,11 +42,11 @@ function render(input, out, __component, component, state) {
                   "</span></p></div><div class=\"col\"><p class=\"price font-weight-bold\">$" +
                   marko_escapeXml(flight.totalPrice) +
                   "</p></div></div><div class=\"row\"><div class=\"col-lg-10\"><p><span class=\"font-weight-bold\">" +
-                  marko_escapeXml((flight.dTime.getHours() + ":") + flight.dTime.getMinutes()) +
+                  marko_escapeXml((flight.d_time.getHours() + ":") + flight.d_time.getMinutes()) +
                   "</span> - <span class=\"font-weight-bold\">" +
-                  marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
+                  marko_escapeXml((flight.a_time.getHours() + ":") + flight.a_time.getMinutes()) +
                   "</span></p><p class=\"text-muted\">" +
-                  marko_escapeXml(flight.dTime) +
+                  marko_escapeXml(flight.d_time) +
                   "</p></div></div></div>");
               });
 

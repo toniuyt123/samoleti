@@ -1,0 +1,13 @@
+import Base from '../base.marko';
+import TopNav from '../topNav.marko';
+
+<${Base}>
+  <@heading>
+    <title>${data.title}</title>
+  </@heading>
+  <@content>
+    <${TopNav}>
+    </>
+    <h1>Our servers are having trouble. Please Try again later.</h1>
+  </@content>
+</>

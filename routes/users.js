@@ -1,9 +1,11 @@
 const registerTemplate = require('../views/users/register.marko');
 const loginTemplate = require('../views/users/login.marko');
+const accountTemplate = require('../views/users/account.marko');
 const DBManager = require('../util/dbManager.js');
 const bcrypt = require('bcrypt');
 const db = new DBManager();
 const loginware = require('../middleware/users.js').loginware;
+const isLogged = require('../middleware/users.js').isLogged;
 const validateEmail = require('../util/util.js').validateEmail;
 const generateKey = require('../util/util.js').generateKey;
 const assert = require('assert');
@@ -70,5 +72,20 @@ module.exports = function (app) {
     }
 
     res.redirect('/');
+  });
+
+  app.get('/account', isLogged, async (req, res) => {
+    if (req.cookies.sessionKey) {
+      const session = await db.getSession(req.cookies.sessionKey);
+      let client = await db.getClient();
+      const user = (await client.query(`SELECT * FROM users WHERE id = $id`, {
+        id: session.user_id,
+      })).rows[0];
+
+      return res.marko(accountTemplate, {
+        user: user,
+      });
+    }
+    res.redirect('/register');
   });
 };
