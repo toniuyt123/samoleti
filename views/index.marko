@@ -1,5 +1,6 @@
 import Base from './base.marko';
 import SearchBar from './flights/searchBar.marko';
+import TopNav from './topNav.marko';
 
 <${Base}>
 	<@heading>
@@ -7,6 +8,8 @@ import SearchBar from './flights/searchBar.marko';
     <script src='/js/index.js'> </script>
   </@heading>
 	<@content>
+    <${TopNav}>
+    </>
     <div id='index-container'>
       <div id="fade-in" class="notLoaded">
         <h1>Planes.com</h1>

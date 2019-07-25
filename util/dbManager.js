@@ -52,10 +52,13 @@ class DBManager {
     });
   }
 
-  getSession (key) {
-    return this.pool.query(`SELECT * FROM sessions WHERE key = $1`, {
+  async getSession (key) {
+    const session = (await this.pool.query(`SELECT * FROM sessions WHERE key = $key`, {
       key: key,
-    });
+    })).rows;
+
+    if (session) { return session[0]; }
+    return false;
   }
 
   async populateCountries () {

@@ -63,7 +63,7 @@ module.exports = {
     return flights;
   },
 
-  findAllPaths: (graph, from, to) => {
+  findAllPaths: (graph, from, to, maxStopovers = 2) => {
     let queue = [];
     queue.push([[from, '']]);
     let paths = [];
@@ -79,7 +79,7 @@ module.exports = {
         continue;
       }
 
-      if (path.length < 4) {
+      if (path.length <= maxStopovers) {
         for (let i = 0; i < graph[lastNode].length; i++) {
           if (!path.includes(graph[lastNode][i][0])) {
             let newPath = [...path];

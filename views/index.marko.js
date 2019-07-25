@@ -8,6 +8,7 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     marko_defineComponent = components_helpers.c,
     Base = require("./base.marko"),
     SearchBar = require("./flights/searchBar.marko"),
+    TopNav = require("./topNav.marko"),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_dynamicTag = marko_helpers.d;
 
@@ -23,9 +24,11 @@ function render(input, out, __component, component, state) {
           },
         content: {
             renderBody: function(out) {
+              marko_dynamicTag(out, TopNav, null, null, null, null, __component, "5");
+
               out.w("<div id=\"index-container\"><div id=\"fade-in\" class=\"notLoaded\"><h1>Planes.com</h1><h2>All the flights on the cheapest prices!</h2></div>");
 
-              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "9");
+              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "10");
 
               out.w("</div>");
             }
@@ -45,6 +48,7 @@ marko_template.meta = {
     id: "/samoleti$1.0.0/views/index.marko",
     tags: [
       "./base.marko",
-      "./flights/searchBar.marko"
+      "./flights/searchBar.marko",
+      "./topNav.marko"
     ]
   };

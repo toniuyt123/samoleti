@@ -68,3 +68,20 @@ body {
 .search-result-container {
   padding:15px;
 }
+
+#icon {
+  height: 3vw;
+  width: auto;
+  float: left;
+  margin-right: 10px;
+  padding: 3px;
+}
+
+#my-profile {
+  display: flex;
+  align-items: center;
+}
+
+.top-nav {
+  max-width: 100%;
+}

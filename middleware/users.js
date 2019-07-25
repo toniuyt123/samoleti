@@ -5,7 +5,7 @@ module.exports = {
   loginware: async (req, res, next) => {
     if (req.cookies.sessionKey) {
       const session = await db.getSession(req.cookies.sessionKey);
-      if (session.rows.length) {
+      if (session && session.logged) {
         req.userId = session.rows[0].user_id;
         return res.redirect('/');
       }
