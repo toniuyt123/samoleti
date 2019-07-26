@@ -152,6 +152,13 @@ class DBManager {
           logged BOOLEAN NOT NULL,
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )`);
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS ConfirmationTokens (
+          id BIGSERIAL PRIMARY KEY,
+          user_id BIGINT NOT NULL REFERENCES Users(id),
+          token TEXT NOT NULL,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )`);
       await client.query(`COMMIT`);
     });
   }

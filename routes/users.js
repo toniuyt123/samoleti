@@ -9,13 +9,15 @@ const isLogged = require('../middleware/users.js').isLogged;
 const validateEmail = require('../util/util.js').validateEmail;
 const generateKey = require('../util/util.js').generateKey;
 const assert = require('assert');
+const pool = require('../util/db.js');
+const sendMail = require('../util/util.js').sendEmail;
 
 module.exports = function (app) {
   app.get('/register', loginware, (req, res) => {
     res.marko(registerTemplate);
   });
 
-  app.post('/register', loginware, (req, res) => {
+  app.post('/register', loginware, async (req, res) => {
     try {
       const username = req.body.username;
       const email = req.body.email;
@@ -28,8 +30,25 @@ module.exports = function (app) {
       assert(validateEmail(email), 'Invalid email');
       assert(username.length !== 0, 'Username blank');
 
-      db.addUser(username, email, phone, password)
+      await db.addUser(username, email, phone, password)
         .catch(err => console.log(err));
+
+      const userId = (await pool.query(`
+        SELECT id FROM users
+        WHERE email = $email`, {
+        email: email,
+      })).rows[0].id;
+
+      const token = generateKey();
+      await pool.query(`
+        INSERT INTO confirmationTokens (user_id, token)
+        VALUES ($userId, $token)`, {
+        userId: userId,
+        token: token,
+      });
+
+      sendMail(email, 'Please confirm your email address',
+        `Follow this link localhost:8080/confirm/${token}`);
 
       res.redirect('/');
     } catch (err) {

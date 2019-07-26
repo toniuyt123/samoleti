@@ -2,27 +2,22 @@ const named = require('node-postgres-named');
 const pool = require('../util/db.js');
 const assert = require('assert');
 const weather = require('./integrations/darkSky.js').weather;
+named.patch(pool);
 
 module.exports = {
   findRoute: async (params) => {
+    console.log(params)
     assert(params.from);
     assert(params.to);
 
     if (typeof params.from === 'object') {
       params.from = await module.exports.findNearestAirport(params.from.lat, params.from.lng);
     }
-    if (typeof params.to === 'object') {
-      if (params.to.lat && params.to.lng) {
-        params.to = await module.exports.findNearestAirport(params.to.lat, params.to.lng);
-      }
-    } else {
+    if (!(typeof params.to === 'object')) {
       params.to = [params.to];
     }
 
-    let client = await pool.connect();
-    named.patch(client);
-
-    const res = (await client.query(`
+    const res = (await pool.query(`
       SELECT airport_from, airport_to, id FROM Flights
       WHERE d_time >= $departureStart AND d_time <= $departureEnd`, {
       departureStart: params.departureStart,
@@ -43,6 +38,9 @@ module.exports = {
     let flights = [];
     let airportsWeathers = {};
     for (let p = 0; p < params.to.length; p++) {
+      if (params.to[p].lat && params.to[p].lng) {
+        params.to[p] = await module.exports.findNearestAirport(params.to[p].lat, params.to[p].lng);
+      }
       const paths = module.exports.findAllPaths(graph, params.from, params.to[p]);
 
       for (let i = 0; i < paths.length; i++) {
@@ -55,9 +53,11 @@ module.exports = {
         let distanceSum = 0;
 
         for (let j = 1; j < paths[i].length; j++) {
-          let flight = (await client.query(`
-          SELECT * FROM Flights
-          WHERE id = $id`, {
+          let flight = (await pool.query(`
+            SELECT *, a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to FROM Flights f
+            LEFT JOIN airports a1 ON a1.iata = f.airport_from
+            LEFT JOIN airports a2 ON a2.iata = f.airport_to
+            WHERE f.id = $id`, {
             id: paths[i][j][1],
           })).rows[0];
           let flightData = module.exports.dataFromFlight(flight);
@@ -98,8 +98,20 @@ module.exports = {
     }
 
     if (params.filter === 'shortest') {
-      return flights.find(elem => elem.route.length === 1);
+      let minRoute = flights[0].route.length;
+      let flight = flights[0];
+
+      for (let i = 1; i < flights.length; i++) {
+        let len = flights[i].route.length;
+        if (len < minRoute) {
+          minRoute = len;
+          flight = flights[i];
+        }
+      }
+
+      return flight;
     }
+
     return flights;
   },
 
@@ -145,16 +157,17 @@ module.exports = {
       aTime: flight.a_time,
       duration: flight.duration,
       distance: flight.distance,
+      latFrom: flight.lat_from,
+      latTo: flight.lat_to,
+      lngFrom: flight.lng_from,
+      lngTo: flight.lng_to,
       class: flight.class,
       airlineId: flight.airline_id,
     };
   },
 
   findNearestAirport: async (lat, lng) => {
-    let client = await pool.connect();
-    named.patch(client);
-
-    let airports = (await client.query(`SELECT iata, lat, lng FROM airports`)).rows;
+    let airports = (await pool.query(`SELECT iata, lat, lng FROM airports`)).rows;
 
     let minLength = Number.MAX_SAFE_INTEGER;
     let airport = '';
@@ -171,16 +184,14 @@ module.exports = {
   },
 
   getForecastForAirport: async (iata, date = new Date()) => {
-    let client = await pool.connect();
-    named.patch(client);
-
-    const airport = (await client.query(`
+    const airport = (await pool.query(`
             SELECT * FROM airports
             WHERE iata = $iata`, {
       iata: iata,
     })).rows[0];
 
     const forecast = JSON.parse(await weather(airport.lat, airport.lng, date));
+
     return {
       summary: forecast.daily.data[0].summary,
       icon: forecast.daily.data[0].icon,

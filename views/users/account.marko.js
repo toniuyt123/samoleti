@@ -18,9 +18,9 @@ function render(input, out, __component, component, state) {
     return {
         content: {
             renderBody: function(out) {
-              out.w("<h1>" +
+              out.w("<h1>Username: " +
                 marko_escapeXml(data.user.username) +
-                "</h1>");
+                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a>");
             }
           }
       };

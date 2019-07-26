@@ -25,8 +25,15 @@ require('./routes/users.js')(app);
 require('./routes/api.js')(app);
 require('./routes/search.js')(app);
 
+// HTTP to HTTPS
+/* app.use((req, res) => {
+  if (!req.secure) {
+    res.redirect('https://' + req.headers.host + req.url);
+  }
+}); */
+
 // Handle 404
-app.use(function (req, res) {
+app.use((req, res) => {
   const errorTemplate = require('./views/errorPages/404.marko');
 
   res.status(400);
@@ -36,9 +43,9 @@ app.use(function (req, res) {
 });
 
 // Handle 500
-app.use(function (error, req, res, next) {
+app.use((error, req, res, next) => {
   const errorTemplate = require('./views/errorPages/500.marko');
-  console.log(error)
+  console.log(error);
   res.status(500);
   res.marko(errorTemplate, {
     title: '500: Internal Server Error',
@@ -64,7 +71,7 @@ async function test () {
   console.log(res);
 }
 
-test();
+// test();
 /*
 const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);

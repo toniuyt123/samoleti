@@ -49,11 +49,11 @@ import SearchBar from './searchBar.marko'
               </div>
               <div class="row detailed-info" hidden>
                 <div class="col">
-                  <img src="/img/climateIcons/${flight.dWeather.icon}.svg" onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                  <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
                   <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
                 </div>
                 <div class="col">
-                  <img src="/img/climateIcons/${flight.dWeather.icon}.svg" onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                  <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
                   <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
                 </div>
               </div>
