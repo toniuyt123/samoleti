@@ -44,13 +44,18 @@ import SearchBar from './searchBar.marko'
                   <p class="text-muted">${flight.dTime}</p>
                 </div>
                 <div class="col-lg-2">
-                  <p class='dropdown-arrow float-right'>&#8910;</p>
+                  <p class="dropdown-arrow float-right">&#8910;</p>
                 </div>
               </div>
               <div class="row detailed-info" hidden>
-                <hr>
-                <p>Weather upon departure: ${flight.dWeather}</p>
-                <p>Weather upon arrival: ${flight.aWeather}</p>
+                <div class="col">
+                  <img src="/img/climateIcons/${flight.dWeather.icon}.svg" onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                  <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
+                </div>
+                <div class="col">
+                  <img src="/img/climateIcons/${flight.dWeather.icon}.svg" onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                  <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
+                </div>
               </div>
             </div>
           </for>

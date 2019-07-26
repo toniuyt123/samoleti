@@ -11,6 +11,11 @@ const methods = {
 };
 
 module.exports = function (app) {
+  app.options('/api', cors, (req, res) => {
+    res.status(200);
+    res.send();
+  });
+
   app.post('/api', rawBody, cors, async (req, res) => {
     let jsonResult = [];
     try {
@@ -40,6 +45,7 @@ module.exports = function (app) {
 
     if (jsonResult.length === 1) jsonResult = jsonResult[0];
 
+    res.status(200);
     res.send(jsonResult);
   });
 };

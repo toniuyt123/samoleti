@@ -11,7 +11,8 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_dynamicTag = marko_helpers.d,
     marko_forEach = marko_helpers.f,
-    marko_escapeXml = marko_helpers.x;
+    marko_escapeXml = marko_helpers.x,
+    marko_attr = marko_helpers.a;
 
 function render(input, out, __component, component, state) {
   var data = input;
@@ -52,11 +53,19 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
                   "</span></p><p class=\"text-muted\">" +
                   marko_escapeXml(flight.dTime) +
-                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><hr><p>Weather upon departure: " +
-                  marko_escapeXml(flight.dWeather) +
-                  "</p><p>Weather upon arrival: " +
-                  marko_escapeXml(flight.aWeather) +
-                  "</p></div></div>");
+                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><div class=\"col\"><img" +
+                  marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
+                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon departure: " +
+                  marko_escapeXml(flight.dWeather.summary) +
+                  " " +
+                  marko_escapeXml(flight.dWeather.temperature) +
+                  "&#8457;</p></div><div class=\"col\"><img" +
+                  marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
+                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon arrival: " +
+                  marko_escapeXml(flight.aWeather.summary) +
+                  " " +
+                  marko_escapeXml(flight.aWeather.temperature) +
+                  "&#8457;</p></div></div></div>");
               });
 
               out.w("</div><div class=\"col-lg-3\"><p>ad space</p></div></div></div>");

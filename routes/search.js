@@ -19,7 +19,7 @@ module.exports = function (app) {
         result: result,
       });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.marko(resultTemplate, {
         result: [],
       });

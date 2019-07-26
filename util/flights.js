@@ -64,6 +64,8 @@ module.exports = {
             const forecast = await module.exports.getForecastForAirport(flightData.from, flightData.dTime);
             airportsWeathers[flightData.from] = forecast;
             data['dWeather'] = forecast;
+          } else {
+            data['dWeather'] = airportsWeathers[flightData.from];
           }
         }
         if (j === paths[i].length - 1) {
@@ -73,6 +75,8 @@ module.exports = {
             const forecast = await module.exports.getForecastForAirport(flightData.to, flightData.aTime);
             airportsWeathers[flightData.to] = forecast;
             data['aWeather'] = forecast;
+          } else {
+            data['aWeather'] = airportsWeathers[flightData.to];
           }
         }
 
@@ -167,6 +171,10 @@ module.exports = {
     })).rows[0];
 
     const forecast = JSON.parse(await weather(airport.lat, airport.lng, date));
-    return forecast.daily.data[0].summary;
+    return {
+      summary: forecast.daily.data[0].summary,
+      icon: forecast.daily.data[0].icon,
+      temperature: forecast.daily.data[0].temperatureHigh,
+    };
   },
 };
