@@ -52,9 +52,11 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
                   "</span></p><p class=\"text-muted\">" +
                   marko_escapeXml(flight.dTime) +
-                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><hr>" +
+                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><hr><p>Weather upon departure: " +
                   marko_escapeXml(flight.dWeather) +
-                  "</div></div>");
+                  "</p><p>Weather upon arrival: " +
+                  marko_escapeXml(flight.aWeather) +
+                  "</p></div></div>");
               });
 
               out.w("</div><div class=\"col-lg-3\"><p>ad space</p></div></div></div>");

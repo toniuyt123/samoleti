@@ -58,7 +58,7 @@ async function test () {
     {
       method: 'post',
       url: 'http://localhost:8080/api',
-      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "CGN", "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59" }, "id": 1 }',
+      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": { "lat": 42, "lng": 23 }, "to": "CGN", "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59" }, "id": 1 }',
       headers: headersOpt,
     });
   console.log(res);
@@ -68,4 +68,8 @@ async function test () {
 /*
 const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);
+*/
+/*
+const marti = require('./util/integrations/marti.js');
+marti.dumpFlightData();
 */

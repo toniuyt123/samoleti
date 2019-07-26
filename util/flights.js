@@ -8,7 +8,14 @@ module.exports = {
     assert(params.from);
     assert(params.to);
 
-    var client = await pool.connect();
+    if (typeof params.from === 'object') {
+      params.from = await module.exports.findNearestAirport(params.from.lat, params.from.lng);
+    }
+    if (typeof params.to === 'object') {
+      params.to = await module.exports.findNearestAirport(params.to.lat, params.to.lng);
+    }
+
+    let client = await pool.connect();
     named.patch(client);
 
     const res = (await client.query(`
@@ -17,7 +24,7 @@ module.exports = {
       departureStart: params.departureStart,
       departureEnd: params.departureEnd,
     })).rows;
-    var graph = {};
+    let graph = {};
 
     for (let i = 0; i < res.length; i++) {
       const from = res[i].airport_from;
@@ -52,21 +59,21 @@ module.exports = {
 
         if (j === 1) {
           data['dTime'] = flightData.dTime;
-          const airport = (await client.query(`
-            SELECT * FROM airports
-            WHERE iata = $iata`, {
-            iata: flightData.from,
-          })).rows[0];
 
-          if (!Object.keys(airportsWeathers).includes(airport.iata)) {
-            const forecast = JSON.parse(await weather(airport.lat, airport.lng, flightData.dTime));
-            airportsWeathers[airport.iata] = forecast.daily.data[0].summary;
+          if (!Object.keys(airportsWeathers).includes(flightData.from)) {
+            const forecast = await module.exports.getForecastForAirport(flightData.from, flightData.dTime);
+            airportsWeathers[flightData.from] = forecast;
+            data['dWeather'] = forecast;
           }
-
-          data['dWeather'] = airportsWeathers[flightData.from];
         }
         if (j === paths[i].length - 1) {
           data['aTime'] = flightData.aTime;
+
+          if (!Object.keys(airportsWeathers).includes(flightData.to)) {
+            const forecast = await module.exports.getForecastForAirport(flightData.to, flightData.aTime);
+            airportsWeathers[flightData.to] = forecast;
+            data['aWeather'] = forecast;
+          }
         }
 
         priceSum += parseFloat(flightData.price);
@@ -127,5 +134,39 @@ module.exports = {
       class: flight.class,
       airlineId: flight.airline_id,
     };
+  },
+
+  findNearestAirport: async (lat, lng) => {
+    let client = await pool.connect();
+    named.patch(client);
+
+    let airports = (await client.query(`SELECT iata, lat, lng FROM airports`)).rows;
+
+    let minLength = Number.MAX_SAFE_INTEGER;
+    let airport = '';
+    for (let i = 0; i < airports.length; i++) {
+      let distance = Math.sqrt(Math.pow(airports[i].lat - lat, 2) + Math.pow(airports[i].lng - lng, 2));
+
+      if (distance < minLength) {
+        minLength = distance;
+        airport = airports[i].iata;
+      }
+    }
+
+    return airport;
+  },
+
+  getForecastForAirport: async (iata, date = new Date()) => {
+    let client = await pool.connect();
+    named.patch(client);
+
+    const airport = (await client.query(`
+            SELECT * FROM airports
+            WHERE iata = $iata`, {
+      iata: iata,
+    })).rows[0];
+
+    const forecast = JSON.parse(await weather(airport.lat, airport.lng, date));
+    return forecast.daily.data[0].summary;
   },
 };

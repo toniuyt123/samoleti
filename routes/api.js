@@ -1,4 +1,5 @@
-const rawBody = require('../middleware/rawBody.js').rawBody;
+const rawBody = require('../middleware/miscwares.js').rawBody;
+const cors = require('../middleware/miscwares.js').cors;
 const findRoute = require('../util/flights.js').findRoute;
 
 const methods = {
@@ -10,11 +11,15 @@ const methods = {
 };
 
 module.exports = function (app) {
-  app.post('/api', rawBody, async (req, res) => {
+  app.post('/api', rawBody, cors, async (req, res) => {
     let jsonResult = [];
-    let json = JSON.parse(req.rawBody);
+    try {
+      var json = JSON.parse(req.rawBody);
+    } catch (err) {
+      jsonResult.push(rpcError(-32700, 'Parse error', null));
+      return res.send(jsonResult);
+    }
 
-    // eslint-disable-next-line comma-dangle
     if (!json.length) json = [json];
 
     for (let i = 0; i < json.length; i++) {
@@ -28,14 +33,7 @@ module.exports = function (app) {
           'id': data.id,
         };
       } else {
-        result = {
-          'jsonrpc': 2.0,
-          'error': {
-            'code': -32600,
-            'message': 'Method not found',
-          },
-          'id': data.id,
-        };
+        result = rpcError(-32600, 'Method not found', data.id);
       }
       jsonResult.push(result);
     }
@@ -45,3 +43,14 @@ module.exports = function (app) {
     res.send(jsonResult);
   });
 };
+
+function rpcError (code, message, id) {
+  return {
+    'jsonrpc': '2.0',
+    'error': {
+      'code': code,
+      'message': message,
+    },
+    'id': id,
+  };
+}
