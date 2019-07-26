@@ -12,7 +12,11 @@ module.exports = {
       params.from = await module.exports.findNearestAirport(params.from.lat, params.from.lng);
     }
     if (typeof params.to === 'object') {
-      params.to = await module.exports.findNearestAirport(params.to.lat, params.to.lng);
+      if (params.to.lat && params.to.lng) {
+        params.to = await module.exports.findNearestAirport(params.to.lat, params.to.lng);
+      }
+    } else {
+      params.to = [params.to];
     }
 
     let client = await pool.connect();
@@ -36,59 +40,65 @@ module.exports = {
       graph[from].push([to, res[i].id]);
     }
 
-    const paths = module.exports.findAllPaths(graph, params.from, params.to);
     let flights = [];
     let airportsWeathers = {};
+    for (let p = 0; p < params.to.length; p++) {
+      const paths = module.exports.findAllPaths(graph, params.from, params.to[p]);
 
-    for (let i = 0; i < paths.length; i++) {
-      let data = {
-        from: params.from,
-        to: params.to,
-      };
-      let route = [];
-      let priceSum = 0;
-      let distanceSum = 0;
+      for (let i = 0; i < paths.length; i++) {
+        let data = {
+          from: params.from,
+          to: params.to[p],
+        };
+        let route = [];
+        let priceSum = 0;
+        let distanceSum = 0;
 
-      for (let j = 1; j < paths[i].length; j++) {
-        let flight = (await client.query(`
+        for (let j = 1; j < paths[i].length; j++) {
+          let flight = (await client.query(`
           SELECT * FROM Flights
           WHERE id = $id`, {
-          id: paths[i][j][1],
-        })).rows[0];
-        let flightData = module.exports.dataFromFlight(flight);
+            id: paths[i][j][1],
+          })).rows[0];
+          let flightData = module.exports.dataFromFlight(flight);
 
-        if (j === 1) {
-          data['dTime'] = flightData.dTime;
+          if (j === 1) {
+            data['dTime'] = flightData.dTime;
 
-          if (!Object.keys(airportsWeathers).includes(flightData.from)) {
-            const forecast = await module.exports.getForecastForAirport(flightData.from, flightData.dTime);
-            airportsWeathers[flightData.from] = forecast;
-            data['dWeather'] = forecast;
-          } else {
-            data['dWeather'] = airportsWeathers[flightData.from];
+            if (!Object.keys(airportsWeathers).includes(flightData.from)) {
+              const forecast = await module.exports.getForecastForAirport(flightData.from, flightData.dTime);
+              airportsWeathers[flightData.from] = forecast;
+              data['dWeather'] = forecast;
+            } else {
+              data['dWeather'] = airportsWeathers[flightData.from];
+            }
           }
-        }
-        if (j === paths[i].length - 1) {
-          data['aTime'] = flightData.aTime;
+          if (j === paths[i].length - 1) {
+            data['aTime'] = flightData.aTime;
 
-          if (!Object.keys(airportsWeathers).includes(flightData.to)) {
-            const forecast = await module.exports.getForecastForAirport(flightData.to, flightData.aTime);
-            airportsWeathers[flightData.to] = forecast;
-            data['aWeather'] = forecast;
-          } else {
-            data['aWeather'] = airportsWeathers[flightData.to];
+            if (!Object.keys(airportsWeathers).includes(flightData.to)) {
+              const forecast = await module.exports.getForecastForAirport(flightData.to, flightData.aTime);
+              airportsWeathers[flightData.to] = forecast;
+              data['aWeather'] = forecast;
+            } else {
+              data['aWeather'] = airportsWeathers[flightData.to];
+            }
           }
+
+          priceSum += parseFloat(flightData.price);
+          distanceSum += parseFloat(flightData.distance);
+          route.push(flightData);
         }
 
-        priceSum += parseFloat(flightData.price);
-        distanceSum += parseFloat(flightData.distance);
-        route.push(flightData);
+        data['totalPrice'] = priceSum;
+        data['totalDistance'] = Math.round(distanceSum * 100) / 100;
+        data['route'] = route;
+        flights.push(data);
       }
+    }
 
-      data['totalPrice'] = priceSum;
-      data['totalDistance'] = Math.round(distanceSum * 100) / 100;
-      data['route'] = route;
-      flights.push(data);
+    if (params.filter === 'shortest') {
+      return flights.find(elem => elem.route.length === 1);
     }
     return flights;
   },
