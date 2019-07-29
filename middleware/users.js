@@ -1,4 +1,4 @@
-const DBManager = require('../util/dbManager.js');
+const DBManager = require('../util/dbMethods.js');
 const db = new DBManager();
 
 module.exports = {

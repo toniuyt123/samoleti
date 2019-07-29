@@ -1,7 +1,8 @@
 const registerTemplate = require('../views/users/register.marko');
 const loginTemplate = require('../views/users/login.marko');
 const accountTemplate = require('../views/users/account.marko');
-const DBManager = require('../util/dbManager.js');
+const confirmedTemplate = require('../views/users/confirmed.marko');
+const DBManager = require('../util/dbMethods.js');
 const bcrypt = require('bcrypt');
 const db = new DBManager();
 const loginware = require('../middleware/users.js').loginware;
@@ -48,12 +49,40 @@ module.exports = function (app) {
       });
 
       sendMail(email, 'Please confirm your email address',
-        `Follow this link localhost:8080/confirm/${token}`);
+        `Follow this link https://localhost:8080/confirm?token=${token}`);
 
       res.redirect('/');
     } catch (err) {
       res.marko(registerTemplate, {
         error: err.message,
+      });
+    }
+  });
+
+  app.get('/confirm', async (req, res) => {
+    try {
+      const token = (await pool.query(`
+        SELECT * FROM confirmation_tokens
+        WHERE token = $token`, {
+        token: req.query.token,
+      })).rows[0];
+
+      if (new Date() - token.created_at > 1000000) {
+        return res.marko(confirmedTemplate, {
+          error: 'Confirmation link expired.',
+        });
+      }
+
+      await pool.query(`
+        UPDATE users SET is_confirmed = True
+        WHERE id = $userId`, {
+        userId: token.user_id,
+      });
+
+      res.marko(confirmedTemplate);
+    } catch (err) {
+      res.marko(confirmedTemplate, {
+        error: 'There was a problem',
       });
     }
   });
@@ -94,17 +123,33 @@ module.exports = function (app) {
   });
 
   app.get('/account', isLogged, async (req, res) => {
-    if (req.cookies.sessionKey) {
-      const session = await db.getSession(req.cookies.sessionKey);
-      let client = await db.getClient();
-      const user = (await client.query(`SELECT * FROM users WHERE id = $id`, {
-        id: session.user_id,
-      })).rows[0];
+    const session = await db.getSession(req.cookies.sessionKey);
 
-      return res.marko(accountTemplate, {
-        user: user,
-      });
-    }
-    res.redirect('/register');
+    const user = (await pool.query(`SELECT * FROM users WHERE id = $id`, {
+      id: session.user_id,
+    })).rows[0];
+
+    const plans = (await pool.query(`
+      SELECT * FROM plans`)).rows;
+
+    return res.marko(accountTemplate, {
+      user: user,
+      plans: plans,
+    });
+  });
+
+  app.post('/subscribe', isLogged, async (req, res) => {
+    console.log(req.body)
+    console.log(req.userId)
+
+    let date = new Date();
+    await pool.query(`
+      INSERT INTO subscriptions(user_id, plan_id, started_at, ends_at)
+      VALUES ($userId, $planId, $startedAt, $endsAt)`, {
+      userId: req.userId,
+      planId: req.body.planId,
+      startedAt: date,
+      endsAt: date.setMonth(date.getMonth() + 1),
+    });
   });
 };

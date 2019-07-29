@@ -41,7 +41,7 @@ module.exports = {
     });
 
     const message = {
-      from: 'antonio.milev@hackerschool-bg.com',
+      from: process.env.GMAIL_USER,
       to: recipent,
       subject: subject,
       text: text,
@@ -54,5 +54,5 @@ module.exports = {
         console.log(info);
       }
     });
-  }
+  },
 };

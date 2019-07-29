@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const transaction = require('./util.js').transactionWrapper;
 const named = require('node-postgres-named');
 
-class DBManager {
+class DBMethods {
   constructor () {
     this.pool = require('./db.js');
     this.saltRounds = 10;
@@ -77,9 +77,12 @@ class DBManager {
         .pipe(csv())
         .on('data', (row) => {
           client.query(`
-          INSERT INTO countries VALUES ($id, $name) ON CONFLICT DO NOTHING`, {
+            INSERT INTO countries(id, name, continent)
+            VALUES ($id, $name, $continent) ON CONFLICT (id)
+            DO UPDATE SET name = $name, continent = $continent`, {
             id: row['A2'],
             name: row['Name'],
+            continent: row['Continent'],
           });
         });
     });
@@ -94,7 +97,8 @@ class DBManager {
           email TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL,
           phone TEXT NOT NULL,
-          registered_at TIMESTAMP NOT NULL DEFAULT NOW()
+          registered_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          is_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
         )`);
       await client.query(`
         CREATE TABLE IF NOT EXISTS Plans (
@@ -153,7 +157,7 @@ class DBManager {
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )`);
       await client.query(`
-        CREATE TABLE IF NOT EXISTS ConfirmationTokens (
+        CREATE TABLE IF NOT EXISTS confirmation_tokens (
           id BIGSERIAL PRIMARY KEY,
           user_id BIGINT NOT NULL REFERENCES Users(id),
           token TEXT NOT NULL,
@@ -164,4 +168,4 @@ class DBManager {
   }
 }
 
-module.exports = DBManager;
+module.exports = DBMethods;

@@ -1,0 +1,13 @@
+import Base from '../base.marko';
+
+<${Base}>
+  <@content>
+    <if(data.error)>
+      <p class="text-danger">${data.error}</p>
+    </if>
+    <else>
+      <h1>Email address confirmed. You can now log in</h1>
+      <a class='btn btn-secondary' href='/login'>Log In</a>
+    </else>
+  </@content>
+</>

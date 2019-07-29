@@ -3,10 +3,10 @@ require('marko/node-require'); // Allow Node.js to require and load `.marko` fil
 const express = require('express');
 const path = require('path');
 const markoExpress = require('marko/express');
-const template = require('./views/index.marko');
+const indexTemplate = require('./views/index.marko');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-
+const vladi = require('./util/integrations/vladi.js');
 var app = express();
 
 app.use(markoExpress());
@@ -18,7 +18,7 @@ app.use('/img', express.static(path.join(__dirname, '/public/img')));
 app.use('/js', express.static(path.join(__dirname, '/public/js')));
 
 app.get('/', (req, res) => {
-  res.marko(template, { name: 'toni', });
+  res.marko(indexTemplate);
 });
 
 require('./routes/users.js')(app);

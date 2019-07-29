@@ -9,6 +9,8 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     Base = require("../base.marko"),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_escapeXml = marko_helpers.x,
+    marko_forEach = marko_helpers.f,
+    marko_attr = marko_helpers.a,
     marko_dynamicTag = marko_helpers.d;
 
 function render(input, out, __component, component, state) {
@@ -20,7 +22,27 @@ function render(input, out, __component, component, state) {
             renderBody: function(out) {
               out.w("<h1>Username: " +
                 marko_escapeXml(data.user.username) +
-                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a>");
+                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a><div class=\"container\"><div class=\"row\">");
+
+              var $for$0 = 0;
+
+              marko_forEach(input.plans, function(plan) {
+                out.w(" ");
+
+                var $keyScope$0 = "[" + (($for$0++) + "]");
+
+                out.w("<div class=\"col plan-container\"><h2 class=\"text-center\">" +
+                  marko_escapeXml(plan.name) +
+                  "</h2><div class=\"row\"><div class=\"col\"><p class=\"price\">$" +
+                  marko_escapeXml(plan.price_monthly) +
+                  " a Month</p></div><div class=\"col\"><p class=\"price\">$" +
+                  marko_escapeXml(plan.price_yearly) +
+                  " a Year</p></div></div><form action=\"/subscribe\" method=\"POST\"><input type=\"hidden\"" +
+                  marko_attr("value", "" + plan.id) +
+                  " name=\"planId\"></form></div> ");
+              });
+
+              out.w("</div></div>");
             }
           }
       };
