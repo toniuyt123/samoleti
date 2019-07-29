@@ -1,13 +1,18 @@
-import Base from '../base.marko'
+import Base from '../base.marko';
+import TopNav from '../topNav.marko';
 
 <${Base}>
   <@content>
+    <${TopNav}>
+    </>
     <h1>Username: ${data.user.username}</h1>
     <a class="btn btn-secondary" href="/logout">Log Out</a>
     <div class="container">
       <div class="row">
         <for|plan| of=input.plans>      
-            <div class="col plan-container">
+          <form action='/subscribe' class='col plan-container' method='POST'>
+            <input type="hidden" value=`${plan.id}` name="planId"/>
+            <button class='no-style-button' type='submit'>
               <h2 class="text-center">${plan.name}</h2>
               <div class="row">
                 <div class="col">
@@ -17,10 +22,8 @@ import Base from '../base.marko'
                   <p class="price">$${plan.price_yearly} a Year</p>
                 </div>
               </div>
-              <form action="/subscribe" method="POST">
-                <input type="hidden" value=`${plan.id}` name="planId"/>
-              </form>
-            </div> 
+            </button> 
+          </form>
         </for>
       </div>
     </div>

@@ -6,7 +6,7 @@ named.patch(pool);
 
 module.exports = {
   findRoute: async (params) => {
-    console.log(params)
+    console.log(params);
     assert(params.from);
     assert(params.to);
 
@@ -48,10 +48,12 @@ module.exports = {
           from: params.from,
           to: params.to[p],
         };
-        let route = [];
-        let priceSum = 0;
-        let distanceSum = 0;
+        data['route'] = [];
+        data['totalPrice'] = 0;
+        data['totalDistance'] = 0;
 
+        let prevArrive = new Date('01-01-0001');
+        let canConnect = true;
         for (let j = 1; j < paths[i].length; j++) {
           let flight = (await pool.query(`
             SELECT *, a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to FROM Flights f
@@ -61,38 +63,33 @@ module.exports = {
             id: paths[i][j][1],
           })).rows[0];
           let flightData = module.exports.dataFromFlight(flight);
+          if (flightData.dTime < prevArrive) {
+            canConnect = false;
+            prevArrive = flightData.aTime;
+            break;
+          }
+          prevArrive = flightData.aTime;
 
           if (j === 1) {
             data['dTime'] = flightData.dTime;
-
-            if (!Object.keys(airportsWeathers).includes(flightData.from)) {
-              const forecast = await module.exports.getForecastForAirport(flightData.from, flightData.dTime);
-              airportsWeathers[flightData.from] = forecast;
-              data['dWeather'] = forecast;
-            } else {
-              data['dWeather'] = airportsWeathers[flightData.from];
-            }
+            data['dWeather'] = await module.exports.getForecastForAirport(
+              airportsWeathers, flightData.from, flightData.dTime);
           }
           if (j === paths[i].length - 1) {
             data['aTime'] = flightData.aTime;
-
-            if (!Object.keys(airportsWeathers).includes(flightData.to)) {
-              const forecast = await module.exports.getForecastForAirport(flightData.to, flightData.aTime);
-              airportsWeathers[flightData.to] = forecast;
-              data['aWeather'] = forecast;
-            } else {
-              data['aWeather'] = airportsWeathers[flightData.to];
-            }
+            data['aWeather'] = await module.exports.getForecastForAirport(
+              airportsWeathers, flightData.to, flightData.aTime);
           }
 
-          priceSum += parseFloat(flightData.price);
-          distanceSum += parseFloat(flightData.distance);
-          route.push(flightData);
+          data['totalPrice'] += parseFloat(flightData.price);
+          data['totalDistance'] += parseFloat(flightData.distance);
+          data['route'].push(flightData);
         }
 
-        data['totalPrice'] = priceSum;
-        data['totalDistance'] = Math.round(distanceSum * 100) / 100;
-        data['route'] = route;
+        if (!canConnect) continue;
+
+        data['totalDistance'] = Math.round(data['totalDistance'] * 100) / 100;
+        data['duration'] = (data['aTime'].getTime() - data['dTime'].getTime()) / 3600000;
         flights.push(data);
       }
     }
@@ -183,19 +180,21 @@ module.exports = {
     return airport;
   },
 
-  getForecastForAirport: async (iata, date = new Date()) => {
-    const airport = (await pool.query(`
-            SELECT * FROM airports
-            WHERE iata = $iata`, {
-      iata: iata,
-    })).rows[0];
-
-    const forecast = JSON.parse(await weather(airport.lat, airport.lng, date));
-
-    return {
-      summary: forecast.daily.data[0].summary,
-      icon: forecast.daily.data[0].icon,
-      temperature: forecast.daily.data[0].temperatureHigh,
-    };
+  getForecastForAirport: async (airportsWeathers, iata, date = new Date()) => {
+    if (!Object.keys(airportsWeathers).includes(iata + date.toDateString())) {
+      const airport = (await pool.query(`
+        SELECT * FROM airports
+        WHERE iata = $iata`, {
+        iata: iata,
+      })).rows[0];
+      const forecast = JSON.parse(await weather(airport.lat, airport.lng, date));
+      const data = {
+        summary: forecast.daily.data[0].summary,
+        icon: forecast.daily.data[0].icon,
+        temperature: forecast.daily.data[0].temperatureHigh,
+      };
+      airportsWeathers[iata + date.toDateString()] = data;
+    }
+    return airportsWeathers[iata + date.toDateString()];
   },
 };

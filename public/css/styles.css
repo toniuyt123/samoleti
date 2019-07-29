@@ -95,8 +95,19 @@ body {
 
 .top-nav {
   max-width: 100%;
+  background-color: white;
 }
 
 .detailed-info {
   display:hidden;
+}
+
+.no-style-button {
+  background: white;
+  border: none;
+}
+
+.no-decoration, .no-decoration:hover {
+  text-decoration: none;
+  color:black;
 }

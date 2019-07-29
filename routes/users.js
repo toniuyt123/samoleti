@@ -123,12 +123,7 @@ module.exports = function (app) {
   });
 
   app.get('/account', isLogged, async (req, res) => {
-    const session = await db.getSession(req.cookies.sessionKey);
-
-    const user = (await pool.query(`SELECT * FROM users WHERE id = $id`, {
-      id: session.user_id,
-    })).rows[0];
-
+    const user = await db.getActiveUser(req);
     const plans = (await pool.query(`
       SELECT * FROM plans`)).rows;
 
@@ -139,17 +134,26 @@ module.exports = function (app) {
   });
 
   app.post('/subscribe', isLogged, async (req, res) => {
-    console.log(req.body)
-    console.log(req.userId)
-
     let date = new Date();
+
+    const isSubscribed = await pool.query(`
+      SELECT * FROM subscriptions
+      WHERE user_id = $userId AND NOW() < ends_at AND NOW() > started_at`, {
+      userId: req.userId,
+    });
+
+    if (isSubscribed) {
+      return res.redirect('/account');
+    }
+
     await pool.query(`
       INSERT INTO subscriptions(user_id, plan_id, started_at, ends_at)
       VALUES ($userId, $planId, $startedAt, $endsAt)`, {
       userId: req.userId,
       planId: req.body.planId,
       startedAt: date,
-      endsAt: date.setMonth(date.getMonth() + 1),
+      endsAt: new Date(date.setMonth(date.getMonth() + 1)),
     });
+    res.redirect('/');
   });
 };

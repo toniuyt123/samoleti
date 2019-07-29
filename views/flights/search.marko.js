@@ -51,9 +51,11 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml((flight.dTime.getHours() + ":") + flight.dTime.getMinutes()) +
                   "</span> - <span class=\"font-weight-bold\">" +
                   marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
-                  "</span></p><p class=\"text-muted\">" +
+                  "</span></p><p class=\"text-muted\">Depart: " +
                   marko_escapeXml(flight.dTime) +
-                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><div class=\"col\"><img" +
+                  "<br>Arrive: " +
+                  marko_escapeXml(flight.aTime) +
+                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden><div class=\"row\"><div class=\"col\"><img" +
                   marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
                   " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon departure: " +
                   marko_escapeXml(flight.dWeather.summary) +
@@ -65,7 +67,25 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml(flight.aWeather.summary) +
                   " " +
                   marko_escapeXml(flight.aWeather.temperature) +
-                  "&#8457;</p></div></div></div>");
+                  "&#8457;</p></div></div>");
+
+                var $for$1 = 0;
+
+                marko_forEach(flight.route, function(stop) {
+                  var $keyScope$1 = "[" + ((($for$1++) + $keyScope$0) + "]");
+
+                  out.w("<div class=\"row\"><div class=\"col\"><p>" +
+                    marko_escapeXml(stop.from) +
+                    " - " +
+                    marko_escapeXml(stop.to) +
+                    "</p><p>" +
+                    marko_escapeXml(stop.dTime) +
+                    " - " +
+                    marko_escapeXml(stop.aTime) +
+                    "</p></div></div>");
+                });
+
+                out.w("</div></div>");
               });
 
               out.w("</div><div class=\"col-lg-3\"><p>ad space</p></div></div></div>");

@@ -69,6 +69,16 @@ class DBMethods {
     return undefined;
   }
 
+  async getActiveUser (req) {
+    const session = await this.getSession(req.cookies.sessionKey);
+
+    const user = (await this.pool.query(`SELECT * FROM users WHERE id = $id`, {
+      id: session.user_id,
+    })).rows[0];
+
+    return user;
+  }
+
   async populateCountries () {
     const csv = require('csv-parser');
     const fs = require('fs');
@@ -163,7 +173,6 @@ class DBMethods {
           token TEXT NOT NULL,
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )`);
-      await client.query(`COMMIT`);
     });
   }
 }

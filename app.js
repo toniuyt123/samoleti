@@ -6,7 +6,6 @@ const markoExpress = require('marko/express');
 const indexTemplate = require('./views/index.marko');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const vladi = require('./util/integrations/vladi.js');
 var app = express();
 
 app.use(markoExpress());
@@ -55,6 +54,7 @@ app.use((error, req, res, next) => {
 
 app.listen(8080);
 
+/*
 const request = require('request-promise-native');
 var headersOpt = {
   'content-type': 'application/json',
@@ -71,7 +71,7 @@ async function test () {
   console.log(res);
 }
 
-// test();
+test(); */
 /*
 const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);

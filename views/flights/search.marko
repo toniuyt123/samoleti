@@ -41,21 +41,31 @@ import SearchBar from './searchBar.marko'
                     -
                     <span class="font-weight-bold">${flight.aTime.getHours() + ":" + flight.aTime.getMinutes()}</span>
                   </p>
-                  <p class="text-muted">${flight.dTime}</p>
+                  <p class="text-muted">Depart: ${flight.dTime}<br>Arrive: ${flight.aTime}</p>
                 </div>
                 <div class="col-lg-2">
                   <p class="dropdown-arrow float-right">&#8910;</p>
                 </div>
               </div>
               <div class="row detailed-info" hidden>
-                <div class="col">
-                  <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
-                  <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
+                <div class="row">
+                  <div class="col">
+                    <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                    <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
+                  </div>
+                  <div class="col">
+                    <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                    <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
+                  </div>
                 </div>
-                <div class="col">
-                  <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
-                  <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
-                </div>
+                <for|stop| of=flight.route>
+                  <div class="row">
+                    <div class="col">
+                      <p>${stop.from} - ${stop.to}</p>
+                      <p>${stop.dTime} - ${stop.aTime}</p>
+                    </div>
+                  </div>
+                </for>
               </div>
             </div>
           </for>
