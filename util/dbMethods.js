@@ -173,6 +173,13 @@ class DBMethods {
           token TEXT NOT NULL,
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )`);
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS scheduled_emails (
+          id BIGSERIAL PRIMARY KEY,
+          recipient BIGINT UNIQUE NOT NULL REFERENCES Users(id),
+          cron_expression TEXT NOT NULL,
+          max_price DECIMAL(8,2) NOT NULL CHECK (max_price > 0.0)
+        )`);
     });
   }
 }

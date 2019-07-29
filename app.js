@@ -54,7 +54,6 @@ app.use((error, req, res, next) => {
 
 app.listen(8080);
 
-/*
 const request = require('request-promise-native');
 var headersOpt = {
   'content-type': 'application/json',
@@ -65,13 +64,14 @@ async function test () {
     {
       method: 'post',
       url: 'http://localhost:8080/api',
-      body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": { "lat": 42, "lng": 23 }, "to": ["CGN", "BGY"], "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
+      // body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": { "lat": 42, "lng": 23 }, "to": ["CGN", "BGY"], "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
+      body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100 }, "id": 1 }',
       headers: headersOpt,
     });
   console.log(res);
 }
 
-test(); */
+// test();
 /*
 const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);
@@ -80,3 +80,8 @@ weatherAPI.weather(42.697365, 23.305037);
 const marti = require('./util/integrations/marti.js');
 marti.dumpFlightData();
 */
+
+/* const DB = require('./util/dbMethods.js');
+const db = new DB();
+
+db.createTables(); */

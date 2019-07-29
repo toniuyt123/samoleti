@@ -33,6 +33,7 @@
     "jsdom": "^15.1.1",
     "marko": "^4.18.10",
     "marko-layout": "^2.0.2",
+    "node-cron": "^2.0.3",
     "nodemailer": "^6.3.0",
     "popper.js": "^1.15.0",
     "request": "^2.88.0",
