@@ -88,3 +88,5 @@ typings/
 .dynamodb/
 
 db.js
+server.cert
+server.key

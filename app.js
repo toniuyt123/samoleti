@@ -6,6 +6,9 @@ const markoExpress = require('marko/express');
 const indexTemplate = require('./views/index.marko');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const emailCron = require('./util/emailUtils.js').scheduleEmails;
+var fs = require('fs');
+var https = require('https');
 var app = express();
 
 app.use(markoExpress());
@@ -23,13 +26,6 @@ app.get('/', (req, res) => {
 require('./routes/users.js')(app);
 require('./routes/api.js')(app);
 require('./routes/search.js')(app);
-
-// HTTP to HTTPS
-/* app.use((req, res) => {
-  if (!req.secure) {
-    res.redirect('https://' + req.headers.host + req.url);
-  }
-}); */
 
 // Handle 404
 app.use((req, res) => {
@@ -52,7 +48,14 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(8080);
+https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert'),
+}, app)
+  .listen(3000, () => {
+    console.log('Example app listening on port 3000! Go to https://localhost:3000/');
+  });
+emailCron();
 
 const request = require('request-promise-native');
 var headersOpt = {
@@ -76,10 +79,10 @@ async function test () {
 const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);
 */
-/*
+
 const marti = require('./util/integrations/marti.js');
-marti.dumpFlightData();
-*/
+// marti.dumpFlightData();
+
 
 /* const DB = require('./util/dbMethods.js');
 const db = new DB();

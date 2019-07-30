@@ -7,11 +7,11 @@ const bcrypt = require('bcrypt');
 const db = new DBManager();
 const loginware = require('../middleware/users.js').loginware;
 const isLogged = require('../middleware/users.js').isLogged;
-const validateEmail = require('../util/util.js').validateEmail;
+const validateEmail = require('../util/emailUtils.js').validateEmail;
 const generateKey = require('../util/util.js').generateKey;
 const assert = require('assert');
 const pool = require('../util/db.js');
-const sendMail = require('../util/util.js').sendEmail;
+const sendMail = require('../util/emailUtils.js').sendEmail;
 
 module.exports = function (app) {
   app.get('/register', loginware, (req, res) => {
@@ -42,7 +42,7 @@ module.exports = function (app) {
 
       const token = generateKey();
       await pool.query(`
-        INSERT INTO confirmationTokens (user_id, token)
+        INSERT INTO confirmation_tokens (user_id, token)
         VALUES ($userId, $token)`, {
         userId: userId,
         token: token,

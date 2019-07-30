@@ -1,8 +1,7 @@
 const rawBody = require('../middleware/miscwares.js').rawBody;
 const cors = require('../middleware/miscwares.js').cors;
 const findRoute = require('../util/flights.js').findRoute;
-const cron = require('node-cron');
-const utils = require('../util/util.js');
+const emailUtils = require('../util/emailUtils.js');
 
 const methods = {
   findRoute: (params) => {
@@ -13,7 +12,7 @@ const methods = {
 
   setDealNotifications: (params) => {
     return new Promise(async (resolve) => {
-      await utils.createEmailSchedule(params);
+      await emailUtils.createEmailSchedule(params);
       resolve('Deal notification scheduled successfully');
     });
   },

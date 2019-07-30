@@ -160,6 +160,7 @@ module.exports = {
       lngTo: flight.lng_to,
       class: flight.class,
       airlineId: flight.airline_id,
+      shopId: flight.shop_platform_id,
     };
   },
 

@@ -1,24 +1,10 @@
-const request = require('request-promise-native');
 const endpoint = 'http://10.20.1.158:3000/rpc';
 const pool = require('../db.js');
-const headersOpt = {
-  'content-type': 'application/json',
-};
+const sendRPC = require('../util.js').sendRPC;
 
 module.exports = {
   createClassified: async (product, requestId = 1) => {
-    const res = await request({
-      method: 'post',
-      url: endpoint,
-      body: `{
-          "jsonrpc": "2.0",
-          "method": "createClassified",
-          "params": ${JSON.stringify(product)},
-          "id": ${requestId}
-        }`,
-      headers: headersOpt,
-    });
-
+    const res = await sendRPC(endpoint, 'createClassified', product);
     console.log(res);
   },
 
