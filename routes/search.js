@@ -1,4 +1,4 @@
-const findRoute = require('../util/flights.js').findRoute;
+const { findRoute } = require('../util/flights.js');
 const resultTemplate = require('../views/flights/search.marko');
 
 module.exports = function (app) {

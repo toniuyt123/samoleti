@@ -1,7 +1,6 @@
-const rawBody = require('../middleware/miscwares.js').rawBody;
-const cors = require('../middleware/miscwares.js').cors;
-const findRoute = require('../util/flights.js').findRoute;
-const emailUtils = require('../util/emailUtils.js');
+const { cors, rawBody } = require('../middleware/miscwares.js');
+const { findRoute } = require('../util/flights.js');
+const { createEmailSchedule } = require('../util/emailUtils.js');
 
 const methods = {
   findRoute: (params) => {
@@ -12,7 +11,7 @@ const methods = {
 
   setDealNotifications: (params) => {
     return new Promise(async (resolve) => {
-      await emailUtils.createEmailSchedule(params);
+      await createEmailSchedule(params);
       resolve('Deal notification scheduled successfully');
     });
   },

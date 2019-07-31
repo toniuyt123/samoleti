@@ -1,18 +1,19 @@
-require('marko/node-require'); // Allow Node.js to require and load `.marko` files
-
-const express = require('express');
 const path = require('path');
-const markoExpress = require('marko/express');
-const indexTemplate = require('./views/index.marko');
+const fs = require('fs');
+
+const https = require('https');
+const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const emailCron = require('./util/emailUtils.js').scheduleEmails;
-var fs = require('fs');
-var https = require('https');
-var app = express();
+const markoExpress = require('marko/express');
+require('marko/node-require'); // Allow Node.js to require and load `.marko` files
+
+const indexTemplate = require('./views/index.marko');
+const { scheduleEmails } = require('./util/emailUtils.js');
+
+const app = express();
 
 app.use(markoExpress());
-// eslint-disable-next-line comma-dangle
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/styles', express.static(path.join(__dirname, '/public/css')));
@@ -53,12 +54,12 @@ https.createServer({
   cert: fs.readFileSync('server.cert'),
 }, app)
   .listen(3000, () => {
-    console.log('Example app listening on port 3000! Go to https://localhost:3000/');
+    console.log('App listening on port 3000! Go to https://localhost:3000/');
   });
-emailCron();
+scheduleEmails();
 
 const request = require('request-promise-native');
-var headersOpt = {
+const headersOpt = {
   'content-type': 'application/json',
 };
 
@@ -80,9 +81,11 @@ const weatherAPI = require('./util/integrations/darkSky.js');
 weatherAPI.weather(42.697365, 23.305037);
 */
 
-const marti = require('./util/integrations/marti.js');
+// const marti = require('./util/integrations/marti.js');
 // marti.dumpFlightData();
 
+// const vladi = require('./util/integrations/vladi.js');
+// vladi.promote();
 
 /* const DB = require('./util/dbMethods.js');
 const db = new DB();

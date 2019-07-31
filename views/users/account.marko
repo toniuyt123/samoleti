@@ -8,6 +8,9 @@ import TopNav from '../topNav.marko';
     <h1>Username: ${data.user.username}</h1>
     <a class="btn btn-secondary" href="/logout">Log Out</a>
     <div class="container">
+      <if(data.err)>
+        <p class="text-danger">${data.err}</p>
+      </if>
       <div class="row">
         <for|plan| of=input.plans>      
           <form action='/subscribe' class='col plan-container' method='POST'>

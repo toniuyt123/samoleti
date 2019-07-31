@@ -25,7 +25,15 @@ function render(input, out, __component, component, state) {
 
               out.w("<h1>Username: " +
                 marko_escapeXml(data.user.username) +
-                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a><div class=\"container\"><div class=\"row\">");
+                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a><div class=\"container\">");
+
+              if (data.err) {
+                out.w("<p class=\"text-danger\">" +
+                  marko_escapeXml(data.err) +
+                  "</p>");
+              }
+
+              out.w("<div class=\"row\">");
 
               var $for$0 = 0;
 

@@ -1,17 +1,19 @@
+const assert = require('assert');
+
+const bcrypt = require('bcrypt');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+const { loginware, isLogged } = require('../middleware/users.js');
+const { validateEmail, sendMail } = require('../util/emailUtils.js');
+const { generateKey } = require('../util/util.js');
+const DBMethods = require('../util/dbMethods.js');
+const dbm = new DBMethods();
+const db = require('../util/db.js');
+
 const registerTemplate = require('../views/users/register.marko');
 const loginTemplate = require('../views/users/login.marko');
 const accountTemplate = require('../views/users/account.marko');
 const confirmedTemplate = require('../views/users/confirmed.marko');
-const DBManager = require('../util/dbMethods.js');
-const bcrypt = require('bcrypt');
-const db = new DBManager();
-const loginware = require('../middleware/users.js').loginware;
-const isLogged = require('../middleware/users.js').isLogged;
-const validateEmail = require('../util/emailUtils.js').validateEmail;
-const generateKey = require('../util/util.js').generateKey;
-const assert = require('assert');
-const pool = require('../util/db.js');
-const sendMail = require('../util/emailUtils.js').sendEmail;
 
 module.exports = function (app) {
   app.get('/register', loginware, (req, res) => {
@@ -31,17 +33,17 @@ module.exports = function (app) {
       assert(validateEmail(email), 'Invalid email');
       assert(username.length !== 0, 'Username blank');
 
-      await db.addUser(username, email, phone, password)
+      await dbm.addUser(username, email, phone, password)
         .catch(err => console.log(err));
 
-      const userId = (await pool.query(`
+      const userId = (await db.query(`
         SELECT id FROM users
         WHERE email = $email`, {
         email: email,
       })).rows[0].id;
 
       const token = generateKey();
-      await pool.query(`
+      await db.query(`
         INSERT INTO confirmation_tokens (user_id, token)
         VALUES ($userId, $token)`, {
         userId: userId,
@@ -61,7 +63,7 @@ module.exports = function (app) {
 
   app.get('/confirm', async (req, res) => {
     try {
-      const token = (await pool.query(`
+      const token = (await db.query(`
         SELECT * FROM confirmation_tokens
         WHERE token = $token`, {
         token: req.query.token,
@@ -73,10 +75,27 @@ module.exports = function (app) {
         });
       }
 
-      await pool.query(`
+      await db.query(`
         UPDATE users SET is_confirmed = True
         WHERE id = $userId`, {
         userId: token.user_id,
+      });
+
+      stripe.customers.create({
+        description: `Customer for user`,
+        source: 'tok_mastercard',
+      }, async (err, customer) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+
+        await db.query(`
+          UPDATE users SET stripe_customer_id = $customerId
+          WHERE id = $id`, {
+          customerId: customer.id,
+          id: token.user_id,
+        });
       });
 
       res.marko(confirmedTemplate);
@@ -95,7 +114,7 @@ module.exports = function (app) {
     try {
       const email = req.body.email;
       const password = req.body.password;
-      const user = await db.findUser(email);
+      const user = await dbm.findUser(email);
       assert(user, 'Email not found.');
 
       const match = await bcrypt.compare(password, user.password);
@@ -103,7 +122,7 @@ module.exports = function (app) {
 
       do {
         var key = generateKey();
-        var logged = await db.login(user.id, key);
+        var logged = await dbm.login(user.id, key);
       } while (!logged);
 
       res.cookie('sessionKey', key).redirect('/');
@@ -116,37 +135,35 @@ module.exports = function (app) {
 
   app.all('/logout', async (req, res) => {
     if (req.cookies.sessionKey) {
-      db.logout(req.cookies.sessionKey);
+      dbm.logout(req.cookies.sessionKey);
     }
 
     res.redirect('/');
   });
 
   app.get('/account', isLogged, async (req, res) => {
-    const user = await db.getActiveUser(req);
-    const plans = (await pool.query(`
-      SELECT * FROM plans`)).rows;
-
-    return res.marko(accountTemplate, {
-      user: user,
-      plans: plans,
-    });
+    renderAccountPage(req, res);
   });
 
   app.post('/subscribe', isLogged, async (req, res) => {
     let date = new Date();
+    const user = await dbm.getActiveUser(req);
 
-    const isSubscribed = await pool.query(`
+    if (!user.is_confirmed) {
+      return renderAccountPage(req, res, `You haven't confirmed your email address`);
+    }
+
+    const isSubscribed = await db.query(`
       SELECT * FROM subscriptions
       WHERE user_id = $userId AND NOW() < ends_at AND NOW() > started_at`, {
       userId: req.userId,
     });
 
     if (isSubscribed) {
-      return res.redirect('/account');
+      return renderAccountPage(req, res, 'You already have an active subscription!');
     }
 
-    await pool.query(`
+    await db.query(`
       INSERT INTO subscriptions(user_id, plan_id, started_at, ends_at)
       VALUES ($userId, $planId, $startedAt, $endsAt)`, {
       userId: req.userId,
@@ -156,4 +173,16 @@ module.exports = function (app) {
     });
     res.redirect('/');
   });
+
+  async function renderAccountPage (req, res, err = null) {
+    const user = await dbm.getActiveUser(req);
+    const plans = (await db.query(`
+      SELECT * FROM plans`)).rows;
+
+    return res.marko(accountTemplate, {
+      user: user,
+      plans: plans,
+      err: err,
+    });
+  }
 };

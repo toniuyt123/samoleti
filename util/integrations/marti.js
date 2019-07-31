@@ -1,6 +1,8 @@
 const request = require('request-promise-native');
+
+const db = require('../db.js');
+
 const endpoint = 'http://10.20.1.149:3001/api/v1';
-const pool = require('../db.js');
 const headersOpt = {
   'content-type': 'application/json',
 };
@@ -23,7 +25,7 @@ module.exports = {
         headers: headersOpt,
       }));
     console.log(res);
-    await pool.query(`
+    await db.query(`
       UPDATE flights SET shop_platform_id = $shopId
       WHERE id = $id`, {
       shopId: parseInt(res.result),
@@ -32,7 +34,7 @@ module.exports = {
   },
 
   dumpFlightData: async () => {
-    const flights = (await pool.query(`SELECT * FROM flights`)).rows;
+    const flights = (await db.query(`SELECT * FROM flights`)).rows;
 
     for (let i = 0; i < flights.length; i++) {
       const product = {

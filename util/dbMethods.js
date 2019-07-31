@@ -1,22 +1,23 @@
 const bcrypt = require('bcrypt');
-const transaction = require('./util.js').transactionWrapper;
 const named = require('node-postgres-named');
+
+const { transaction } = require('./util.js');
 
 class DBMethods {
   constructor () {
-    this.pool = require('./db.js');
+    this.db = require('./db.js');
     this.saltRounds = 10;
   }
 
   async getClient () {
-    var client = await this.pool.connect();
+    var client = await this.db.connect();
     named.patch(client);
 
     return client;
   }
 
   async findUser (email) {
-    const res = await this.pool.query('SELECT * FROM users WHERE email = $email', {
+    const res = await this.db.query('SELECT * FROM users WHERE email = $email', {
       email: email,
     });
 
@@ -25,7 +26,7 @@ class DBMethods {
 
   async addUser (username, email, phone, password) {
     let hashedPassword = await bcrypt.hash(password, this.saltRounds);
-    return this.pool.query(`
+    return this.db.query(`
       INSERT INTO users(username, email, password, phone) 
       VALUES($username, $email, $password, $phone)`, {
       username: username,
@@ -36,14 +37,14 @@ class DBMethods {
   }
 
   async login (userId, key) {
-    const isUnique = await this.pool.query(`SELECT key FROM sessions WHERE key = $key`, {
+    const isUnique = await this.db.query(`SELECT key FROM sessions WHERE key = $key`, {
       key: key,
     });
 
     if (isUnique.rows.length) {
       return false;
     }
-    return this.pool.query(`
+    return this.db.query(`
       INSERT INTO sessions(user_id, key, logged) 
       VALUES ($userId, $key, true) ON CONFLICT (user_id)
       DO UPDATE SET logged = true, key = $key`, {
@@ -53,15 +54,18 @@ class DBMethods {
   }
 
   logout (key) {
-    return this.pool.query(`
-      UPDATE sessions SET logged = false 
-      WHERE key = $key AND logged = true`, {
+    return this.db.query(`
+      UPDATE sessions 
+      SET logged = false 
+      WHERE key = $key 
+        AND logged = true
+    `, {
       key: key,
     });
   }
 
   async getSession (key) {
-    const session = (await this.pool.query(`SELECT * FROM sessions WHERE key = $key`, {
+    const session = (await this.db.query(`SELECT * FROM sessions WHERE key = $key`, {
       key: key,
     })).rows;
 
@@ -72,7 +76,7 @@ class DBMethods {
   async getActiveUser (req) {
     const session = await this.getSession(req.cookies.sessionKey);
 
-    const user = (await this.pool.query(`SELECT * FROM users WHERE id = $id`, {
+    const user = (await this.db.query(`SELECT * FROM users WHERE id = $id`, {
       id: session.user_id,
     })).rows[0];
 
@@ -109,6 +113,7 @@ class DBMethods {
           phone TEXT NOT NULL,
           registered_at TIMESTAMP NOT NULL DEFAULT NOW(),
           is_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+          stripe_customer_id TEXT UNIQUE
         )`);
       await client.query(`
         CREATE TABLE IF NOT EXISTS Plans (
@@ -156,7 +161,8 @@ class DBMethods {
           class CHAR NOT NULL,
           distance DECIMAL(8,2) NOT NULL CHECK (distance > 0.0),
           price DECIMAL(8,2) NOT NULL CHECK (price > 0.0),
-          airline_id TEXT NOT NULL REFERENCES Airlines(id)
+          airline_id TEXT NOT NULL REFERENCES Airlines(id),
+          shop_platform_id BIGINT UNIQUE
         )`);
       await client.query(`
         CREATE TABLE IF NOT EXISTS Sessions (
