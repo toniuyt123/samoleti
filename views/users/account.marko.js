@@ -53,7 +53,7 @@ function render(input, out, __component, component, state) {
                   " a Year</p></div></div></button> </form>");
               });
 
-              out.w("</div></div>");
+              out.w("</div><div id=\"card-element\"></div></div>");
             }
           }
       };

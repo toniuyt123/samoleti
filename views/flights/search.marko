@@ -1,11 +1,14 @@
 import Base from '../base.marko'
 import SearchBar from './searchBar.marko'
+import TopNav from '../topNav.marko'
 
 <${Base}>
   <@heading>
     <script src="/js/searchResults.js"> </script>
+    <script src="https://js.stripe.com/v3/"></script>
   </@heading>
   <@content>
+    <${TopNav}/>
     <div class="container">
       <div class="row">
         <div class="col">
@@ -64,7 +67,7 @@ import SearchBar from './searchBar.marko'
                     <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
                   </div>
                   <div class="col">
-                    <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
+                    <img src=`/img/climateIcons/${flight.aWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
                     <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
                   </div>
                 </div>

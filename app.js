@@ -91,3 +91,6 @@ weatherAPI.weather(42.697365, 23.305037);
 const db = new DB();
 
 db.createTables(); */
+
+// const stripe = require('./util/integrations/stripe.js');
+// stripe.createPlansFromDb();

@@ -1,11 +1,12 @@
-const assert = require('assert');
+// const assert = require('assert');
 
 const bcrypt = require('bcrypt');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const { assertUser, UserAssertionError } = require('../util/assert.js');
 const { loginware, isLogged } = require('../middleware/users.js');
-const { validateEmail, sendMail } = require('../util/emailUtils.js');
+const { validateEmail, sendEmail } = require('../util/emailUtils.js');
 const { generateKey } = require('../util/util.js');
+const { createCustomer, createSubscription } = require('../util/integrations/stripe.js');
 const DBMethods = require('../util/dbMethods.js');
 const dbm = new DBMethods();
 const db = require('../util/db.js');
@@ -28,10 +29,11 @@ module.exports = function (app) {
       const password = req.body.password;
       const confirm = req.body.confirmPassword;
 
-      assert(password === confirm, "Passwords don't match.");
-      assert(password.length >= 6, 'Passwords must be at least 6 characters long');
-      assert(validateEmail(email), 'Invalid email');
-      assert(username.length !== 0, 'Username blank');
+      assertUser(password === confirm, "Passwords don't match.");
+      assertUser(password.length >= 6, 'Passwords must be at least 6 characters long');
+      assertUser(validateEmail(email), 'Invalid email');
+      assertUser(username.length !== 0, 'Username blank');
+      assertUser(!dbm.findUser(email), 'Email already registered');
 
       await dbm.addUser(username, email, phone, password)
         .catch(err => console.log(err));
@@ -50,14 +52,16 @@ module.exports = function (app) {
         token: token,
       });
 
-      sendMail(email, 'Please confirm your email address',
+      sendEmail(email, 'Please confirm your email address',
         `Follow this link https://localhost:8080/confirm?token=${token}`);
 
       res.redirect('/');
     } catch (err) {
-      res.marko(registerTemplate, {
-        error: err.message,
-      });
+      if (err instanceof UserAssertionError) {
+        res.marko(registerTemplate, {
+          error: err.message,
+        });
+      }
     }
   });
 
@@ -81,22 +85,7 @@ module.exports = function (app) {
         userId: token.user_id,
       });
 
-      stripe.customers.create({
-        description: `Customer for user`,
-        source: 'tok_mastercard',
-      }, async (err, customer) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-
-        await db.query(`
-          UPDATE users SET stripe_customer_id = $customerId
-          WHERE id = $id`, {
-          customerId: customer.id,
-          id: token.user_id,
-        });
-      });
+      createCustomer(token.user_id);
 
       res.marko(confirmedTemplate);
     } catch (err) {
@@ -115,10 +104,10 @@ module.exports = function (app) {
       const email = req.body.email;
       const password = req.body.password;
       const user = await dbm.findUser(email);
-      assert(user, 'Email not found.');
+      assertUser(user, 'Email not found.');
 
       const match = await bcrypt.compare(password, user.password);
-      assert(match, 'Invalid password');
+      assertUser(match, 'Invalid password');
 
       do {
         var key = generateKey();
@@ -127,9 +116,11 @@ module.exports = function (app) {
 
       res.cookie('sessionKey', key).redirect('/');
     } catch (err) {
-      res.marko(loginTemplate, {
-        error: err.message,
-      });
+      if (err instanceof UserAssertionError) {
+        res.marko(loginTemplate, {
+          error: err.message,
+        });
+      }
     }
   });
 
@@ -146,31 +137,24 @@ module.exports = function (app) {
   });
 
   app.post('/subscribe', isLogged, async (req, res) => {
-    let date = new Date();
     const user = await dbm.getActiveUser(req);
 
     if (!user.is_confirmed) {
       return renderAccountPage(req, res, `You haven't confirmed your email address`);
     }
 
-    const isSubscribed = await db.query(`
+    const isSubscribed = (await db.query(`
       SELECT * FROM subscriptions
       WHERE user_id = $userId AND NOW() < ends_at AND NOW() > started_at`, {
       userId: req.userId,
-    });
+    })).rows.length;
 
     if (isSubscribed) {
       return renderAccountPage(req, res, 'You already have an active subscription!');
     }
 
-    await db.query(`
-      INSERT INTO subscriptions(user_id, plan_id, started_at, ends_at)
-      VALUES ($userId, $planId, $startedAt, $endsAt)`, {
-      userId: req.userId,
-      planId: req.body.planId,
-      startedAt: date,
-      endsAt: new Date(date.setMonth(date.getMonth() + 1)),
-    });
+    createSubscription(req.userId, req.body.planId);
+
     res.redirect('/');
   });
 

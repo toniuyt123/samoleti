@@ -19,10 +19,11 @@ body {
   flex-shrink: none;
 }
 
-#explore-form {
+#search-form {
   padding: 10px;
   background: white;
   border-radius: 5px;
+  margin-top: 15px;
 }
 
 #index-container {

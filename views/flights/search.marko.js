@@ -8,6 +8,7 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     marko_defineComponent = components_helpers.c,
     Base = require("../base.marko"),
     SearchBar = require("./searchBar.marko"),
+    TopNav = require("../topNav.marko"),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_dynamicTag = marko_helpers.d,
     marko_forEach = marko_helpers.f,
@@ -21,14 +22,16 @@ function render(input, out, __component, component, state) {
     return {
         heading: {
             renderBody: function(out) {
-              out.w("<script src=\"/js/searchResults.js\"> </script>");
+              out.w("<script src=\"/js/searchResults.js\"> </script><script src=\"https://js.stripe.com/v3/\"></script>");
             }
           },
         content: {
             renderBody: function(out) {
+              marko_dynamicTag(out, TopNav, null, null, null, null, __component, "5");
+
               out.w("<div class=\"container\"><div class=\"row\"><div class=\"col\">");
 
-              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "7");
+              marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "9");
 
               out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><p>filters</p></div><div class=\"col-lg-6 search-result-container\">");
 
@@ -80,7 +83,7 @@ function render(input, out, __component, component, state) {
                   " " +
                   marko_escapeXml(flight.dWeather.temperature) +
                   "&#8457;</p></div><div class=\"col\"><img" +
-                  marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
+                  marko_attr("src", ("/img/climateIcons/" + flight.aWeather.icon) + ".svg") +
                   " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon arrival: " +
                   marko_escapeXml(flight.aWeather.summary) +
                   " " +
@@ -106,6 +109,7 @@ marko_template.meta = {
     id: "/samoleti$1.0.0/views/flights/search.marko",
     tags: [
       "../base.marko",
-      "./searchBar.marko"
+      "./searchBar.marko",
+      "../topNav.marko"
     ]
   };

@@ -40,6 +40,7 @@ const findRoute = async (params) => {
 
   let flights = [];
   let airportsWeathers = {};
+
   for (let to of params.to) {
     if (to.lat && to.lng) {
       to = await findNearestAirport(to.lat, to.lng);

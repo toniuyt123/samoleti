@@ -57,7 +57,7 @@ const scheduleEmail = async (params) => {
         <a href='https://10.20.1.149/products/${flightDeals[i].shop_platform_id}/show'>here</a>!</p>`);
     }
 
-    this.sendEmail(email, 'Flight Deals from Planes.com',
+    sendEmail(email, 'Flight Deals from Planes.com',
       mailText);
   });
 };
