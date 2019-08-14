@@ -1,21 +1,26 @@
-import Base from '../base.marko';
-import TopNav from '../topNav.marko';
+import Base from '../base.marko'
+import TopNav from '../topNav.marko'
 
 <${Base}>
+  <@heading>
+    <script src="https://js.stripe.com/v3/"/>
+    <script src="/js/stripe.js"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="styles/stripeElements.css"/>
+  </@heading>
   <@content>
-    <${TopNav}>
-    </>
+    <${TopNav}/>
     <h1>Username: ${data.user.username}</h1>
     <a class="btn btn-secondary" href="/logout">Log Out</a>
     <div class="container">
       <if(data.err)>
         <p class="text-danger">${data.err}</p>
       </if>
-      <div class="row">
-        <for|plan| of=input.plans>      
-          <form action='/subscribe' class='col plan-container' method='POST'>
+      <!-- <div class="row">
+        <for|plan| of=input.plans>
+          <form action="/subscribe" class="col plan-container" method="POST">
             <input type="hidden" value=`${plan.id}` name="planId"/>
-            <button class='no-style-button' type='submit'>
+            <button class="no-style-button" type="submit">
               <h2 class="text-center">${plan.name}</h2>
               <div class="row">
                 <div class="col">
@@ -25,11 +30,32 @@ import TopNav from '../topNav.marko';
                   <p class="price">$${plan.price_yearly} a Year</p>
                 </div>
               </div>
-            </button> 
+            </button>
           </form>
         </for>
-      </div>
-      <div id="card-element"></div>
+      </div> -->
+      <form action="/subscribe" method="post" id="payment-form">
+        <for|plan| of=input.plans>
+          <input type="radio" value=`${plan.id}` name="planId">
+            <h2 class="text-center">${plan.name}</h2>
+            <div class="row">
+              <div class="col">
+                <p class="price">$${plan.price_monthly} a Month</p>
+              </div>
+              <div class="col">
+                <p class="price">$${plan.price_yearly} a Year</p>
+              </div>
+            </div>
+        </for>
+        <div class="form-row">
+          <div id="card-element" style="width:100%;">
+            <!-- A Stripe Element will be inserted here. -->
+          </div>
+          <!-- Used to display form errors. -->
+          <div id="card-errors" role="alert"/>
+        </div>
+        <button>Submit Payment</button>
+      </form>
     </div>
   </@content>
 </>

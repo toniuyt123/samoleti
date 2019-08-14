@@ -1,4 +1,4 @@
-// Compiled using marko@4.18.10 - DO NOT EDIT
+// Compiled using marko@4.18.11 - DO NOT EDIT
 "use strict";
 
 var marko_template = module.exports = require("marko/src/html").t(__filename),
@@ -19,9 +19,14 @@ function render(input, out, __component, component, state) {
 
   marko_dynamicTag(out, Base, function() {
     return {
+        heading: {
+            renderBody: function(out) {
+              out.w("<script src=\"https://js.stripe.com/v3/\"></script><script src=\"/js/stripe.js\"></script><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"styles/stripeElements.css\">");
+            }
+          },
         content: {
             renderBody: function(out) {
-              marko_dynamicTag(out, TopNav, null, null, null, null, __component, "2");
+              marko_dynamicTag(out, TopNav, null, null, null, null, __component, "7");
 
               out.w("<h1>Username: " +
                 marko_escapeXml(data.user.username) +
@@ -33,27 +38,25 @@ function render(input, out, __component, component, state) {
                   "</p>");
               }
 
-              out.w("<div class=\"row\">");
+              out.w("<form action=\"/subscribe\" method=\"post\" id=\"payment-form\">");
 
               var $for$0 = 0;
 
               marko_forEach(input.plans, function(plan) {
-                out.w(" ");
-
                 var $keyScope$0 = "[" + (($for$0++) + "]");
 
-                out.w("<form action=\"/subscribe\" class=\"col plan-container\" method=\"POST\"><input type=\"hidden\"" +
+                out.w("<input type=\"radio\"" +
                   marko_attr("value", "" + plan.id) +
-                  " name=\"planId\"><button class=\"no-style-button\" type=\"submit\"><h2 class=\"text-center\">" +
+                  " name=\"planId\"><h2 class=\"text-center\">" +
                   marko_escapeXml(plan.name) +
                   "</h2><div class=\"row\"><div class=\"col\"><p class=\"price\">$" +
                   marko_escapeXml(plan.price_monthly) +
                   " a Month</p></div><div class=\"col\"><p class=\"price\">$" +
                   marko_escapeXml(plan.price_yearly) +
-                  " a Year</p></div></div></button> </form>");
+                  " a Year</p></div></div>");
               });
 
-              out.w("</div><div id=\"card-element\"></div></div>");
+              out.w("<div class=\"form-row\"><div id=\"card-element\" style=\"width:100%;\"></div><div id=\"card-errors\" role=\"alert\"></div></div><button>Submit Payment</button></form></div>");
             }
           }
       };
