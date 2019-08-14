@@ -33,7 +33,7 @@ function render(input, out, __component, component, state) {
 
               marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "9");
 
-              out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><p>filters</p></div><div class=\"col-lg-6 search-result-container\">");
+              out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><form method=\"get\" action=\"\"><h3>Filters</h3><div class=\"form-group\"><label for=\"exampleFormControlSelect1\">Sort by</label><select class=\"form-control\" id=\"exampleFormControlSelect2\"><option name=\"priceAsc\">Price ascending</option><option name=\"priceDesc\">Price descending</option><option name=\"stopoversAsc\">Stopovers ascending</option><option name=\"stopoversDesc\">Stopovers descending</option></select></div><hr><label for=\"exampleFormControlSelect1\">Price range</label><div class=\"input-group mb-5\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"minPrice\" placeholder=\"Minimum price\" value=\"0.00\"></div><div class=\"input-group mb-5\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"maxPrice\" placeholder=\"Maximum price\" value=\"3000.00\"></div><button class=\"btn btn-primary w-100\" type=\"submit\">Filter</button></form></div><div class=\"col-lg-6 search-result-container\">");
 
               if (input.result.length == 0) {
                 out.w("<p class=\"text-muted font-weight-bold text-center\">No flights found &#x2639;</p>");

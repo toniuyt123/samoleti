@@ -16,27 +16,9 @@ import TopNav from '../topNav.marko'
       <if(data.err)>
         <p class="text-danger">${data.err}</p>
       </if>
-      <!-- <div class="row">
-        <for|plan| of=input.plans>
-          <form action="/subscribe" class="col plan-container" method="POST">
-            <input type="hidden" value=`${plan.id}` name="planId"/>
-            <button class="no-style-button" type="submit">
-              <h2 class="text-center">${plan.name}</h2>
-              <div class="row">
-                <div class="col">
-                  <p class="price">$${plan.price_monthly} a Month</p>
-                </div>
-                <div class="col">
-                  <p class="price">$${plan.price_yearly} a Year</p>
-                </div>
-              </div>
-            </button>
-          </form>
-        </for>
-      </div> -->
       <form action="/subscribe" method="post" id="payment-form">
         <for|plan| of=input.plans>
-          <input type="radio" value=`${plan.id}` name="planId">
+          <button class="no-style-button plan-container">
             <h2 class="text-center">${plan.name}</h2>
             <div class="row">
               <div class="col">
@@ -46,6 +28,8 @@ import TopNav from '../topNav.marko'
                 <p class="price">$${plan.price_yearly} a Year</p>
               </div>
             </div>
+          </button>
+          <input type="radio" value=`${plan.id}` name="planId" class="hidden-radio"/>
         </for>
         <div class="form-row">
           <div id="card-element" style="width:100%;">

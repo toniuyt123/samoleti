@@ -69,7 +69,7 @@ async function test () {
       method: 'post',
       url: 'http://localhost:8080/api',
       // body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": { "lat": 42, "lng": 23 }, "to": ["CGN", "BGY"], "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
-      body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100 }, "id": 1 }',
+      body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100, "prefferedDestinations": [\'SOF\', \'CGN\'] }, "id": 1 }',
       headers: headersOpt,
     });
   console.log(res);

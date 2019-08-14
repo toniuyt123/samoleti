@@ -113,3 +113,11 @@ body {
   text-decoration: none;
   color:black;
 }
+
+.hidden-radio {
+  display: none;
+}
+
+.filters-container {
+  padding-top:15px;
+}

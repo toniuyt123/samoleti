@@ -206,6 +206,23 @@ const getForecastForAirport = async (airportsWeathers, iata, date = new Date()) 
   return airportsWeathers[iata + date.toDateString()];
 };
 
+const filterFlights = async (flights, params) => {
+  let filtered = [];
+
+  if (!params.minPrice) params.minPrice = 0;
+  if (!params.maxPrice) params.maxPrice = Number.MAX_SAFE_INTEGER;
+
+  for (let flight of params) {
+    if (flight.totalPrice > params.minPrice && flight.totalPrice < params.maxPrice) {
+      filtered.push(flight);
+    }
+
+    if (flight.route.length < params.maxStopovers) {
+      filtered.push(flight);
+    }
+  }
+};
+
 module.exports = {
   findRoute,
   findAllPaths,

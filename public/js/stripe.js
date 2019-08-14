@@ -69,4 +69,11 @@ $(document).ready(function () {
     // Submit the form
     form.submit();
   }
+
+  // Plan selection
+  $('.plan-container').on('click', function () {
+    $(this).next()[0].checked = true;
+    $('.plan-container').css('background-color', 'white');
+    $(this).css('background-color', 'gray');
+  });
 });

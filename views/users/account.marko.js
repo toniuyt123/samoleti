@@ -45,15 +45,15 @@ function render(input, out, __component, component, state) {
               marko_forEach(input.plans, function(plan) {
                 var $keyScope$0 = "[" + (($for$0++) + "]");
 
-                out.w("<input type=\"radio\"" +
-                  marko_attr("value", "" + plan.id) +
-                  " name=\"planId\"><h2 class=\"text-center\">" +
+                out.w("<button class=\"no-style-button plan-container\"><h2 class=\"text-center\">" +
                   marko_escapeXml(plan.name) +
                   "</h2><div class=\"row\"><div class=\"col\"><p class=\"price\">$" +
                   marko_escapeXml(plan.price_monthly) +
                   " a Month</p></div><div class=\"col\"><p class=\"price\">$" +
                   marko_escapeXml(plan.price_yearly) +
-                  " a Year</p></div></div>");
+                  " a Year</p></div></div></button><input type=\"radio\"" +
+                  marko_attr("value", "" + plan.id) +
+                  " name=\"planId\" class=\"hidden-radio\">");
               });
 
               out.w("<div class=\"form-row\"><div id=\"card-element\" style=\"width:100%;\"></div><div id=\"card-errors\" role=\"alert\"></div></div><button>Submit Payment</button></form></div>");

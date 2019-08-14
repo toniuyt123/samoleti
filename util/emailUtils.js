@@ -37,19 +37,20 @@ const sendEmail = (recipent, subject, text) => {
 };
 
 const scheduleEmail = async (params) => {
-  const email = (await db.query(`
-    SELECT email FROM users WHERE id = $id`, {
+  const user = (await db.query(`
+    SELECT * FROM users WHERE id = $id`, {
     id: params.recipient,
-  })).rows[0].email;
+  })).rows[0];
 
   return cron.schedule(params.cronExpression, async () => {
     const flightDeals = (await db.query(`
       SELECT * FROM flights
-      WHERE price < $maxPrice`, {
+      WHERE price < $maxPrice AND
+        airport_to IN ('` + params.prefferedDestinations.join('\',\'') + `')`, {
       maxPrice: params.maxPrice,
     })).rows;
 
-    let mailText = '<h1>We have some deals for you!</h1>\n';
+    let mailText = `<h1>We have some deals for you ${user.username}!</h1>\n`;
     for (let deal of flightDeals) {
       mailText = mailText.concat(`
         <p>Flight from ${deal.airport_from} to ${deal.airport_to}
@@ -57,7 +58,7 @@ const scheduleEmail = async (params) => {
         <a href='https://10.20.1.149/products/${deal.shop_platform_id}/show'>here</a>!</p>`);
     }
 
-    sendEmail(email, 'Flight Deals from Planes.com',
+    sendEmail(user.email, 'Flight Deals from Planes.com',
       mailText);
   });
 };
@@ -80,6 +81,7 @@ const scheduleEmails = async () => {
       cronExpression: cronExpression,
       recipient: job.recipient,
       maxPrice: job.max_price,
+      prefferedDestinations: ['SOF', 'CGN'],
     });
   }
 };

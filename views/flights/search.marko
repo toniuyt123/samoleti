@@ -6,6 +6,7 @@ import TopNav from '../topNav.marko'
   <@heading>
     <script src="/js/searchResults.js"> </script>
     <script src="https://js.stripe.com/v3/"></script>
+
   </@heading>
   <@content>
     <${TopNav}/>
@@ -17,7 +18,33 @@ import TopNav from '../topNav.marko'
       </div>
       <div class="row">
         <div class="col-lg-3 filters-container">
-          <p>filters</p>
+          <form method="get" action="">
+            <h3>Filters</h3>
+            <div class="form-group">
+              <label for="exampleFormControlSelect1">Sort by</label>
+              <select class="form-control" id="exampleFormControlSelect2">
+                <option name="priceAsc">Price ascending</option>
+                <option name="priceDesc">Price descending</option>
+                <option name="stopoversAsc">Stopovers ascending</option>
+                <option name="stopoversDesc">Stopovers descending</option>
+              </select>
+            </div>
+            <hr/>
+            <label for="exampleFormControlSelect1">Price range</label>
+            <div class="input-group mb-5">
+              <div class="input-group-prepend">
+                <div class="input-group-text">$</div>
+              </div>
+              <input type="number" class='form-control' name="minPrice" placeholder="Minimum price" value="0.00">
+            </div>
+            <div class="input-group mb-5">
+              <div class="input-group-prepend">
+                <div class="input-group-text">$</div>
+              </div>
+              <input type="number" class='form-control' name="maxPrice" placeholder="Maximum price" value="3000.00">
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Filter</button>
+          </form>
         </div>
         <div class="col-lg-6 search-result-container">
           <if(input.result.length == 0)>
@@ -56,7 +83,9 @@ import TopNav from '../topNav.marko'
                 <for|stop| of=flight.route>
                   <div class="row">
                     <div class="col">
-                      <p><b>${stop.from}</b> &#x21A6; <b>${stop.to}</b></p>
+                      <p>
+                        <b>${stop.from}</b> &#x21A6; <b>${stop.to}</b>
+                      </p>
                       <p>${stop.dTime.toLocaleString()} - ${stop.aTime.toLocaleString()}</p>
                     </div>
                   </div>
