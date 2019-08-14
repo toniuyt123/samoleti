@@ -20,7 +20,7 @@ app.use('/styles', express.static(path.join(__dirname, '/public/css')));
 app.use('/img', express.static(path.join(__dirname, '/public/img')));
 app.use('/js', express.static(path.join(__dirname, '/public/js')));
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   res.marko(indexTemplate);
 });
 
@@ -86,11 +86,6 @@ weatherAPI.weather(42.697365, 23.305037);
 
 // const vladi = require('./util/integrations/vladi.js');
 // vladi.promote();
-
-/* const DB = require('./util/dbMethods.js');
-const db = new DB();
-
-db.createTables(); */
 
 // const stripe = require('./util/integrations/stripe.js');
 // stripe.createPlansFromDb();

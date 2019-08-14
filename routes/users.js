@@ -33,7 +33,7 @@ module.exports = function (app) {
       assertUser(password.length >= 6, 'Passwords must be at least 6 characters long');
       assertUser(validateEmail(email), 'Invalid email');
       assertUser(username.length !== 0, 'Username blank');
-      assertUser(!dbm.findUser(email), 'Email already registered');
+      assertUser(!(await dbm.findUser(email)), 'Email already registered');
 
       await dbm.addUser(username, email, phone, password)
         .catch(err => console.log(err));
@@ -53,7 +53,7 @@ module.exports = function (app) {
       });
 
       sendEmail(email, 'Please confirm your email address',
-        `Follow this link https://localhost:8080/confirm?token=${token}`);
+        `Follow this link https://localhost:3000/confirm?token=${token}`);
 
       res.redirect('/');
     } catch (err) {
@@ -84,8 +84,6 @@ module.exports = function (app) {
         WHERE id = $userId`, {
         userId: token.user_id,
       });
-
-      createCustomer(token.user_id);
 
       res.marko(confirmedTemplate);
     } catch (err) {
@@ -146,14 +144,15 @@ module.exports = function (app) {
     const isSubscribed = (await db.query(`
       SELECT * FROM subscriptions
       WHERE user_id = $userId AND NOW() < ends_at AND NOW() > started_at`, {
-      userId: req.userId,
-    })).rows.length;
+      userId: user.id,
+    })).rows;
 
-    if (isSubscribed) {
+    if (isSubscribed.length) {
       return renderAccountPage(req, res, 'You already have an active subscription!');
     }
 
-    createSubscription(req.userId, req.body.planId);
+    await createCustomer(user.id, req.body.stripeToken);
+    await createSubscription(user.id, req.body.planId);
 
     res.redirect('/');
   });

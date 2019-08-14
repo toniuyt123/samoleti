@@ -1,10 +1,17 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('../db.js');
 
-const createCustomer = async (userId, email = '') => {
+const createCustomer = async (userId, token = 'tok_mastercard') => {
+  const email = (await db.query(`
+    SELECT email
+    FROM users
+    WHERE id = $id`, {
+    id: userId,
+  })).rows[0].email;
+
   stripe.customers.create({
-    description: `Customer for user`,
-    source: 'tok_mastercard',
+    description: `Customer for ${email}`,
+    source: token,
   }, async (err, customer) => {
     if (err) {
       console.log(err);
@@ -60,19 +67,22 @@ const createSubscription = async (userId, planId, date = new Date()) => {
         plan,
       }
     ],
+    expand: ['latest_invoice.payment_intent'],
   }, async (err, subscription) => {
     if (err) {
       console.log(err);
       return;
     }
 
+    let endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
     await db.query(`
       INSERT INTO subscriptions(user_id, plan_id, started_at, ends_at, stripe_id)
       VALUES ($userId, $planId, $startedAt, $endsAt, $stripeId)`, {
       userId: userId,
       planId: planId,
       startedAt: date,
-      endsAt: new Date(date.setMonth(date.getMonth() + 1)),
+      endsAt: endDate,
       stripeId: subscription.id,
     });
   });

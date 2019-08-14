@@ -50,11 +50,11 @@ const scheduleEmail = async (params) => {
     })).rows;
 
     let mailText = '<h1>We have some deals for you!</h1>\n';
-    for (let i = 0; i < flightDeals.length; i++) {
+    for (let deal of flightDeals) {
       mailText = mailText.concat(`
-        <p>Flight from ${flightDeals[i].airport_from} to ${flightDeals[i].airport_to}
-          at the great price of ${flightDeals[i].price}. Buy it right now from 
-        <a href='https://10.20.1.149/products/${flightDeals[i].shop_platform_id}/show'>here</a>!</p>`);
+        <p>Flight from ${deal.airport_from} to ${deal.airport_to}
+          at the great price of ${deal.price}. Buy it right now from 
+        <a href='https://10.20.1.149/products/${deal.shop_platform_id}/show'>here</a>!</p>`);
     }
 
     sendEmail(email, 'Flight Deals from Planes.com',
@@ -65,21 +65,21 @@ const scheduleEmail = async (params) => {
 const scheduleEmails = async () => {
   const jobs = (await db.query(`SELECT * FROM scheduled_emails`)).rows;
 
-  for (let i = 0; i < jobs.length; i++) {
-    const cronExpression = jobs[i].cron_expression;
+  for (let job of jobs) {
+    const cronExpression = job.cron_expression;
 
     if (!cron.validate(cronExpression)) {
       await db.query(`DELETE FROM scheduled_email WHERE id = $id`, {
-        id: jobs[i].id,
+        id: job.id,
       });
 
       continue;
     }
 
-    emailJobs[jobs[i].recipient.toString()] = scheduleEmail({
+    emailJobs[job.recipient.toString()] = scheduleEmail({
       cronExpression: cronExpression,
-      recipient: jobs[i].recipient,
-      maxPrice: jobs[i].max_price,
+      recipient: job.recipient,
+      maxPrice: job.max_price,
     });
   }
 };
