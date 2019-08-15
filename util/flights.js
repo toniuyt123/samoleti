@@ -128,6 +128,7 @@ const findAllPaths = (graph, from, to, maxStopovers = 3) => {
   while (queue.length) {
     let path = queue.pop();
     let lastNode = path[path.length - 1][0];
+
     if (lastNode === to) {
       paths.push(path);
     }
@@ -173,9 +174,9 @@ const dataFromFlight = (flight) => {
 
 const findNearestAirport = async (lat, lng) => {
   let airports = (await db.query(`SELECT iata, lat, lng FROM airports`)).rows;
-
   let minLength = Number.MAX_SAFE_INTEGER;
   let nearest = '';
+
   for (const airport of airports) {
     let distance = Math.sqrt(Math.pow(airport.lat - lat, 2) + Math.pow(airport.lng - lng, 2));
 
@@ -203,24 +204,26 @@ const getForecastForAirport = async (airportsWeathers, iata, date = new Date()) 
     };
     airportsWeathers[iata + date.toDateString()] = data;
   }
+
   return airportsWeathers[iata + date.toDateString()];
 };
 
-const filterFlights = async (flights, params) => {
+const filterFlights = (flights, params) => {
   let filtered = [];
 
   if (!params.minPrice) params.minPrice = 0;
   if (!params.maxPrice) params.maxPrice = Number.MAX_SAFE_INTEGER;
+  if (!params.maxStopovers) params.maxStopovers = Number.MAX_SAFE_INTEGER;
 
-  for (let flight of params) {
-    if (flight.totalPrice > params.minPrice && flight.totalPrice < params.maxPrice) {
-      filtered.push(flight);
-    }
-
-    if (flight.route.length < params.maxStopovers) {
-      filtered.push(flight);
+  for (let flight of flights) {
+    if (flight.totalPrice >= params.minPrice && flight.totalPrice <= params.maxPrice) {
+      if (flight.route.length <= params.maxStopovers) {
+        filtered.push(flight);
+      }
     }
   }
+
+  return filtered;
 };
 
 module.exports = {
@@ -229,4 +232,5 @@ module.exports = {
   findNearestAirport,
   getForecastForAirport,
   dataFromFlight,
+  filterFlights,
 };

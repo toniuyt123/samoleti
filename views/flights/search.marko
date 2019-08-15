@@ -5,8 +5,7 @@ import TopNav from '../topNav.marko'
 <${Base}>
   <@heading>
     <script src="/js/searchResults.js"> </script>
-    <script src="https://js.stripe.com/v3/"></script>
-
+    <script src="https://js.stripe.com/v3/"/>
   </@heading>
   <@content>
     <${TopNav}/>
@@ -18,31 +17,37 @@ import TopNav from '../topNav.marko'
       </div>
       <div class="row">
         <div class="col-lg-3 filters-container">
-          <form method="get" action="">
+          <form method="POST" action="/search">
             <h3>Filters</h3>
             <div class="form-group">
-              <label for="exampleFormControlSelect1">Sort by</label>
-              <select class="form-control" id="exampleFormControlSelect2">
-                <option name="priceAsc">Price ascending</option>
-                <option name="priceDesc">Price descending</option>
-                <option name="stopoversAsc">Stopovers ascending</option>
-                <option name="stopoversDesc">Stopovers descending</option>
+              <label for="sortBy">Sort by</label>
+              <select class="form-control" id="sortBy" name="sortBy">
+                <option value='{"field":"totalPrice","desc":false}'>Price ascending</option>
+                <option value='{"field":"totalPrice","desc":true}'>Price descending</option>
+                <option value='{"field":"route","desc":false}'>Stopovers ascending</option>
+                <option value='{"field":"route","desc":true}'>Stopovers descending</option>
               </select>
             </div>
             <hr/>
-            <label for="exampleFormControlSelect1">Price range</label>
-            <div class="input-group mb-5">
+            <label>Price range</label>
+            <div class="input-group">
               <div class="input-group-prepend">
                 <div class="input-group-text">$</div>
               </div>
-              <input type="number" class='form-control' name="minPrice" placeholder="Minimum price" value="0.00">
+              <input type="number" class="form-control" name="minPrice" value=`${input.filters.minPrice}`/>
             </div>
-            <div class="input-group mb-5">
+            <div class="input-group">
               <div class="input-group-prepend">
                 <div class="input-group-text">$</div>
               </div>
-              <input type="number" class='form-control' name="maxPrice" placeholder="Maximum price" value="3000.00">
+              <input type="number" class="form-control" name="maxPrice" value=`${input.filters.maxPrice}`/>
             </div>
+            <hr/>
+            <label>Max stopovers</label>
+            <div class="input-group">
+              <input type="number" class="form-control" name="maxStopovers" value=`${input.filters.maxStopovers}`/>
+            </div>
+            <hr/>
             <button class="btn btn-primary w-100" type="submit">Filter</button>
           </form>
         </div>
@@ -65,7 +70,7 @@ import TopNav from '../topNav.marko'
                 </div>
               </div>
               <div class="row">
-                <div class="col-lg-10">
+                <div class="col-8">
                   <p>
                     <span class="font-weight-bold">${flight.dTime.getHours() + ":" + flight.dTime.getMinutes()}</span>
                     -
@@ -75,8 +80,12 @@ import TopNav from '../topNav.marko'
                     Depart: ${flight.dTime.toLocaleString()}<br/>Arrive: ${flight.aTime.toLocaleString()}
                   </p>
                 </div>
-                <div class="col-lg-2">
+                <div class="col-4 float-right">
                   <p class="dropdown-arrow float-right">&#8910;</p>
+                  <br/>
+                  <a href=`https://10.20.1.149/products/${flight.shopId}`>
+                    <button class="btn btn-primary btn-sm">Purchase</button>
+                  </a>
                 </div>
               </div>
               <div class="row detailed-info" hidden>
@@ -93,11 +102,11 @@ import TopNav from '../topNav.marko'
                 <div class="row">
                   <div class="col">
                     <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
-                    <p>Weather upon departure: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
+                    <p>${flight.from}: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
                   </div>
                   <div class="col">
                     <img src=`/img/climateIcons/${flight.aWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
-                    <p>Weather upon arrival: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
+                    <p>${flight.to}: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
                   </div>
                 </div>
               </div>

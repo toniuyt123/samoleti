@@ -11,9 +11,9 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
     TopNav = require("../topNav.marko"),
     marko_helpers = require("marko/src/runtime/html/helpers"),
     marko_dynamicTag = marko_helpers.d,
+    marko_attr = marko_helpers.a,
     marko_forEach = marko_helpers.f,
-    marko_escapeXml = marko_helpers.x,
-    marko_attr = marko_helpers.a;
+    marko_escapeXml = marko_helpers.x;
 
 function render(input, out, __component, component, state) {
   var data = input;
@@ -33,7 +33,13 @@ function render(input, out, __component, component, state) {
 
               marko_dynamicTag(out, SearchBar, null, null, null, null, __component, "9");
 
-              out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><form method=\"get\" action=\"\"><h3>Filters</h3><div class=\"form-group\"><label for=\"exampleFormControlSelect1\">Sort by</label><select class=\"form-control\" id=\"exampleFormControlSelect2\"><option name=\"priceAsc\">Price ascending</option><option name=\"priceDesc\">Price descending</option><option name=\"stopoversAsc\">Stopovers ascending</option><option name=\"stopoversDesc\">Stopovers descending</option></select></div><hr><label for=\"exampleFormControlSelect1\">Price range</label><div class=\"input-group mb-5\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"minPrice\" placeholder=\"Minimum price\" value=\"0.00\"></div><div class=\"input-group mb-5\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"maxPrice\" placeholder=\"Maximum price\" value=\"3000.00\"></div><button class=\"btn btn-primary w-100\" type=\"submit\">Filter</button></form></div><div class=\"col-lg-6 search-result-container\">");
+              out.w("</div></div><div class=\"row\"><div class=\"col-lg-3 filters-container\"><form method=\"POST\" action=\"/search\"><h3>Filters</h3><div class=\"form-group\"><label for=\"sortBy\">Sort by</label><select class=\"form-control\" id=\"sortBy\" name=\"sortBy\"><option value=\"{&quot;field&quot;:&quot;totalPrice&quot;,&quot;desc&quot;:false}\">Price ascending</option><option value=\"{&quot;field&quot;:&quot;totalPrice&quot;,&quot;desc&quot;:true}\">Price descending</option><option value=\"{&quot;field&quot;:&quot;route&quot;,&quot;desc&quot;:false}\">Stopovers ascending</option><option value=\"{&quot;field&quot;:&quot;route&quot;,&quot;desc&quot;:true}\">Stopovers descending</option></select></div><hr><label>Price range</label><div class=\"input-group\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"minPrice\"" +
+                marko_attr("value", "" + input.filters.minPrice) +
+                "></div><div class=\"input-group\"><div class=\"input-group-prepend\"><div class=\"input-group-text\">$</div></div><input type=\"number\" class=\"form-control\" name=\"maxPrice\"" +
+                marko_attr("value", "" + input.filters.maxPrice) +
+                "></div><hr><label>Max stopovers</label><div class=\"input-group\"><input type=\"number\" class=\"form-control\" name=\"maxStopovers\"" +
+                marko_attr("value", "" + input.filters.maxStopovers) +
+                "></div><hr><button class=\"btn btn-primary w-100\" type=\"submit\">Filter</button></form></div><div class=\"col-lg-6 search-result-container\">");
 
               if (input.result.length == 0) {
                 out.w("<p class=\"text-muted font-weight-bold text-center\">No flights found &#x2639;</p>");
@@ -50,7 +56,7 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml(flight.to) +
                   "</span></p></div><div class=\"col\"><p class=\"price font-weight-bold\">$" +
                   marko_escapeXml(flight.totalPrice) +
-                  "</p></div></div><div class=\"row\"><div class=\"col-lg-10\"><p><span class=\"font-weight-bold\">" +
+                  "</p></div></div><div class=\"row\"><div class=\"col-8\"><p><span class=\"font-weight-bold\">" +
                   marko_escapeXml((flight.dTime.getHours() + ":") + flight.dTime.getMinutes()) +
                   "</span> - <span class=\"font-weight-bold\">" +
                   marko_escapeXml((flight.aTime.getHours() + ":") + flight.aTime.getMinutes()) +
@@ -58,7 +64,9 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml(flight.dTime.toLocaleString()) +
                   "<br>Arrive: " +
                   marko_escapeXml(flight.aTime.toLocaleString()) +
-                  "</p></div><div class=\"col-lg-2\"><p class=\"dropdown-arrow float-right\">&#8910;</p></div></div><div class=\"row detailed-info\" hidden>");
+                  "</p></div><div class=\"col-4 float-right\"><p class=\"dropdown-arrow float-right\">&#8910;</p><br><a" +
+                  marko_attr("href", "https://10.20.1.149/products/" + flight.shopId) +
+                  "><button class=\"btn btn-primary btn-sm\">Purchase</button></a></div></div><div class=\"row detailed-info\" hidden>");
 
                 var $for$1 = 0;
 
@@ -78,13 +86,17 @@ function render(input, out, __component, component, state) {
 
                 out.w("<div class=\"row\"><div class=\"col\"><img" +
                   marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
-                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon departure: " +
+                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>" +
+                  marko_escapeXml(flight.from) +
+                  ": " +
                   marko_escapeXml(flight.dWeather.summary) +
                   " " +
                   marko_escapeXml(flight.dWeather.temperature) +
                   "&#8457;</p></div><div class=\"col\"><img" +
                   marko_attr("src", ("/img/climateIcons/" + flight.aWeather.icon) + ".svg") +
-                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>Weather upon arrival: " +
+                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>" +
+                  marko_escapeXml(flight.to) +
+                  ": " +
                   marko_escapeXml(flight.aWeather.summary) +
                   " " +
                   marko_escapeXml(flight.aWeather.temperature) +

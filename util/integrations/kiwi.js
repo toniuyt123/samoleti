@@ -2,23 +2,30 @@ const request = require('request-promise-native');
 
 const db = require('../db.js');
 const { transaction } = require('../util.js');
+const { createProduct, productFromFlight } = require('./marti.js');
 
 module.exports = {
   scanForFlights: async () => {
     const codes = await db.query(`SELECT id FROM countries`);
 
     await transaction(async (db) => {
-      codes.rows.forEach(async (code) => {
-        const res = await request(`https://api.skypicker.com/flights?fly_from=${encodeURIComponent(code.id)}&max_stopovers=0`, {
-          json: true,
-        });
+      for (let code of codes.rows) {
+        try {
+          var res = await request(`https://api.skypicker.com/flights?fly_from=${encodeURIComponent(code.id)}&max_stopovers=0&partner=picky`, {
+            json: true,
+          });
+        } catch (err) {
+          // if (err.message[0].param === 'fly from') continue;
+
+          console.log(err);
+        }
 
         const generalData = res.data;
 
-        for (let j = 0; j < generalData.length; j++) {
-          const flight = generalData[j].route[0];
-          const dTime = new Date(flight.d_time * 1000);
-          const aTime = new Date(flight.a_time * 1000);
+        for (let data of generalData) {
+          const flight = data.route[0];
+          const dTime = new Date(flight.dTime * 1000);
+          const aTime = new Date(flight.aTime * 1000);
 
           await db.query(`
             INSERT INTO airports
@@ -28,7 +35,7 @@ module.exports = {
             lat: flight.latFrom,
             lng: flight.lngFrom,
             city: flight.cityFrom,
-            country_code: generalData[j].countryFrom.code,
+            country_code: data.countryFrom.code,
           });
 
           await db.query(`
@@ -39,7 +46,7 @@ module.exports = {
             lat: flight.latTo,
             lng: flight.lngTo,
             city: flight.cityTo,
-            country_code: generalData[j].countryTo.code,
+            country_code: data.countryTo.code,
           });
 
           await db.query(`
@@ -52,14 +59,25 @@ module.exports = {
             airportTo: flight.flyTo,
             dTime: dTime,
             aTime: aTime,
-            duration: generalData[j].duration.total,
+            duration: data.duration.total,
             class: flight.fare_classes,
-            distance: generalData[j].distance,
-            price: generalData[j].price,
+            distance: data.distance,
+            price: data.price,
             airlineId: flight.airline,
           });
+
+          const product = productFromFlight({
+            id: flight.id,
+            price: data.price,
+            airport_from: flight.flyFrom,
+            airport_to: flight.flyTo,
+            number: flight.flight_no,
+            d_time: dTime,
+            a_time: aTime,
+          });
+          createProduct(product);
         }
-      });
+      }
     });
   },
 

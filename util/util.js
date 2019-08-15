@@ -45,8 +45,30 @@ const sendRPC = async (endpoint, method, params, id = 1) => {
   });
 };
 
+const sortArrayBy = (field, reverse, pr) => {
+  reverse = (reverse) ? -1 : 1;
+
+  return function (a, b) {
+    a = a[field];
+    b = b[field];
+
+    console.log(field)
+    console.log(a)
+    if (typeof (pr) !== 'undefined') {
+      a = pr(a);
+      b = pr(b);
+    }
+
+    if (a < b) return reverse * -1;
+    if (a > b) return reverse * 1;
+
+    return 0;
+  };
+};
+
 module.exports = {
   generateKey,
   transaction,
   sendRPC,
+  sortArrayBy,
 };

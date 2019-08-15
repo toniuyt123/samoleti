@@ -45,7 +45,7 @@ const scheduleEmail = async (params) => {
   return cron.schedule(params.cronExpression, async () => {
     const flightDeals = (await db.query(`
       SELECT * FROM flights
-      WHERE price < $maxPrice AND
+      WHERE price <= $maxPrice AND
         airport_to IN ('` + params.prefferedDestinations.join('\',\'') + `')`, {
       maxPrice: params.maxPrice,
     })).rows;

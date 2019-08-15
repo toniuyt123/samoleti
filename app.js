@@ -89,3 +89,5 @@ weatherAPI.weather(42.697365, 23.305037);
 
 // const stripe = require('./util/integrations/stripe.js');
 // stripe.createPlansFromDb();
+// const { scanForFlights } = require('./util/integrations/kiwi.js');
+// scanForFlights();
