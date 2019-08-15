@@ -55,6 +55,7 @@ const findRoute = async (params) => {
       data['route'] = [];
       data['totalPrice'] = 0;
       data['totalDistance'] = 0;
+      data['id'] = '';
 
       let prevArrive = new Date('01-01-0001');
       let canConnect = true;
@@ -95,6 +96,7 @@ const findRoute = async (params) => {
         data['totalPrice'] += +(flightData.price);
         data['totalDistance'] += +(flightData.distance);
         data['route'].push(flightData);
+        data['id'] += flightData.shopId + (i !== path.length - 1 ? '|' : '');
       }
 
       if (!canConnect) continue;

@@ -52,8 +52,6 @@ const sortArrayBy = (field, reverse, pr) => {
     a = a[field];
     b = b[field];
 
-    console.log(field)
-    console.log(a)
     if (typeof (pr) !== 'undefined') {
       a = pr(a);
       b = pr(b);

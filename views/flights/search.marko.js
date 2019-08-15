@@ -64,9 +64,9 @@ function render(input, out, __component, component, state) {
                   marko_escapeXml(flight.dTime.toLocaleString()) +
                   "<br>Arrive: " +
                   marko_escapeXml(flight.aTime.toLocaleString()) +
-                  "</p></div><div class=\"col-4 float-right\"><p class=\"dropdown-arrow float-right\">&#8910;</p><br><a" +
-                  marko_attr("href", "https://10.20.1.149/products/" + flight.shopId) +
-                  "><button class=\"btn btn-primary btn-sm\">Purchase</button></a></div></div><div class=\"row detailed-info\" hidden>");
+                  "</p></div><div class=\"col-4 float-right\"><p class=\"dropdown-arrow float-right\">&#8910;</p><br><button" +
+                  marko_attr("value", "" + flight.id) +
+                  " class=\"btn btn-primary btn-sm purchase-tickets\">Purchase</button></div></div><div class=\"row detailed-info\" hidden>");
 
                 var $for$1 = 0;
 

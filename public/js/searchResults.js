@@ -16,4 +16,19 @@ $(document).ready(function () {
       }
     }
   });
+
+  $('.purchase-tickets').on('click', function () {
+    const ids = this.value.split('|');
+    const flightProducts = [];
+
+    for (let id of ids) {
+      flightProducts.push({
+        type: 'product',
+        id: parseInt(id),
+      });
+    }
+
+    window.open(
+      `http://10.20.1.149:3000/addToBasket?items=${encodeURIComponent(JSON.stringify(flightProducts))}`);
+  });
 });
