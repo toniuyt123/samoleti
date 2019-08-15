@@ -85,6 +85,8 @@ module.exports = function (app) {
         userId: token.user_id,
       });
 
+      await createCustomer(token.user_id);
+
       res.marko(confirmedTemplate);
     } catch (err) {
       res.marko(confirmedTemplate, {
@@ -151,8 +153,7 @@ module.exports = function (app) {
       return renderAccountPage(req, res, 'You already have an active subscription!');
     }
 
-    await createCustomer(user.id, req.body.stripeToken);
-    await createSubscription(user.id, req.body.planId);
+    await createSubscription(user.id, req.body.planId, req.body.stripeToken);
 
     res.redirect('/');
   });

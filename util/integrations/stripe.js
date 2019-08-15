@@ -45,7 +45,7 @@ const createPlansFromDb = async () => {
   }
 };
 
-const createSubscription = async (userId, planId, date = new Date()) => {
+const createSubscription = async (userId, planId, stripeToken, date = new Date()) => {
   const customerId = (await db.query(`
     SELECT stripe_customer_id 
     FROM users
@@ -59,6 +59,10 @@ const createSubscription = async (userId, planId, date = new Date()) => {
     WHERE id = $id`, {
     id: planId,
   })).rows[0].name;
+
+  stripe.customers.update(customerId, {
+    default_source: stripeToken,
+  });
 
   stripe.subscriptions.create({
     customer: customerId,

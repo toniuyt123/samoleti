@@ -84,23 +84,7 @@ function render(input, out, __component, component, state) {
                     "</p></div></div>");
                 });
 
-                out.w("<div class=\"row\"><div class=\"col\"><img" +
-                  marko_attr("src", ("/img/climateIcons/" + flight.dWeather.icon) + ".svg") +
-                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>" +
-                  marko_escapeXml(flight.from) +
-                  ": " +
-                  marko_escapeXml(flight.dWeather.summary) +
-                  " " +
-                  marko_escapeXml(flight.dWeather.temperature) +
-                  "&#8457;</p></div><div class=\"col\"><img" +
-                  marko_attr("src", ("/img/climateIcons/" + flight.aWeather.icon) + ".svg") +
-                  " onerror=\"this.onerror=null; this.src='/img/climateIcons/clear-day.svg'\"><p>" +
-                  marko_escapeXml(flight.to) +
-                  ": " +
-                  marko_escapeXml(flight.aWeather.summary) +
-                  " " +
-                  marko_escapeXml(flight.aWeather.temperature) +
-                  "&#8457;</p></div></div></div></div>");
+                out.w("</div></div>");
               });
 
               out.w("</div><div class=\"col-lg-3\"><p>ad space</p></div></div></div>");
