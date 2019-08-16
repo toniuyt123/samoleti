@@ -15,12 +15,6 @@ const findRoute = async (params) => {
     params.to = [params.to];
   }
 
-  if (!params.departureStart) params.departureStart = new Date();
-  if (!params.departureEnd) {
-    let now = new Date();
-    params.departureEnd = new Date(now.setDate(now.getDate() + 7));
-  }
-
   const rawFlights = (await db.query(`
     
     SELECT airport_from, airport_to, id 
@@ -39,18 +33,15 @@ const findRoute = async (params) => {
     const to = flight.airport_to;
 
     if (!graph[from]) graph[from] = [];
-    if (!graph[from][to]) graph[from][to] = [];
-
-    graph[from].push([to, flight.id]);
+    if (!graph[from].includes(to)) graph[from].push(to);
   }
-
   let flights = [];
   let airportsWeathers = {};
+
   for (let to of params.to) {
     if (to.lat && to.lng) {
       to = await findNearestAirport(to.lat, to.lng);
     }
-
     const paths = findAllPaths(graph, params.from, to);
 
     for (const path of paths) {
@@ -66,19 +57,22 @@ const findRoute = async (params) => {
       let prevArrive = new Date('01-01-0001');
       let canConnect = true;
 
-      // Starts form 1 because first element does not contain flight id
-      for (let i = 1; i < path.length; i++) {
+      for (let i = 0; i < path.length - 1; i++) {
         const flight = (await db.query(`
 
           SELECT *, a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to 
           FROM Flights f
           LEFT JOIN airports a1 ON a1.iata = f.airport_from
           LEFT JOIN airports a2 ON a2.iata = f.airport_to
-          WHERE f.id = $id
+          WHERE airport_from = $from AND airport_to = $to
+            AND d_time >= $dTime AND a_time <= aTime
           
             `, {
-          id: path[i][1],
-        })).rows[0];
+          from: path[i],
+          to: path[i + 1],
+          dTime: params.departureStart,
+          aTime: params.departureEnd,
+        })).rows;
         const flightData = dataFromFlight(flight);
 
         if (flightData.dTime < prevArrive) {
@@ -130,12 +124,12 @@ const findRoute = async (params) => {
 
 const findAllPaths = (graph, from, to, maxStopovers = 3) => {
   let queue = [];
-  queue.push([[from, '']]);
+  queue.push([from]);
   let paths = [];
 
   while (queue.length) {
     let path = queue.pop();
-    let lastNode = path[path.length - 1][0];
+    let lastNode = path[path.length - 1];
 
     if (lastNode === to) {
       paths.push(path);
@@ -147,9 +141,9 @@ const findAllPaths = (graph, from, to, maxStopovers = 3) => {
 
     if (path.length <= maxStopovers) {
       for (const node of graph[lastNode]) {
-        if (!path.includes(node[0])) {
+        if (!path.includes(node)) {
           let newPath = [...path];
-          newPath.push([node[0], node[1]]);
+          newPath.push(node);
           queue.unshift(newPath);
         }
       }
@@ -234,24 +228,6 @@ const filterFlights = (flights, params) => {
   return filtered;
 };
 
-const getAllFlightPaths = async () => {
-  const flights = (await db.query(`
-
-    SELECT DISTINCT a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to 
-    FROM Flights f
-    LEFT JOIN airports a1 ON a1.iata = f.airport_from
-    LEFT JOIN airports a2 ON a2.iata = f.airport_to
-    `)).rows;
-
-  const data = {};
-  data.route = [];
-  for (let flight of flights) {
-    data.route.push(dataFromFlight(flight));
-  }
-
-  return data;
-};
-
 module.exports = {
   findRoute,
   findAllPaths,
@@ -259,5 +235,4 @@ module.exports = {
   getForecastForAirport,
   dataFromFlight,
   filterFlights,
-  getAllFlightPaths,
 };

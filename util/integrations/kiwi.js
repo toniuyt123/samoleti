@@ -103,18 +103,20 @@ module.exports = {
     await transaction(async (db) => {
       const ids = (await db.query(`SELECT id FROM airlines;`)).rows;
 
-      for (let i = 0; i < ids.length; i++) {
+      for (let i = 0; i < 10; i++) {
         const id = ids[i].id;
         const res = await request(`https://images.kiwi.com/airlines/64x64/${encodeURIComponent(id)}.png`);
         // eslint-disable-next-line new-cap
-        let buf = new Buffer.from(res, 'utf-8');
+        let buf = new Buffer.from(res, 'base64');
 
         await db.query(`
           UPDATE airlines SET logo = $logoBytes
           WHERE id = $id`, {
-          logoBytes: '\\x' + buf.toString('hex'),
-          id: id,
+          logoBytes: buf,
+          id,
         });
+
+        console.log(`${i}/${ids.length}`);
       }
     });
   },

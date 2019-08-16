@@ -72,9 +72,9 @@ import TopNav from '../topNav.marko'
               <div class="row">
                 <div class="col-8">
                   <p>
-                    <span class="font-weight-bold">${flight.dTime.getHours() + ":" + flight.dTime.getMinutes()}</span>
+                    <span class="font-weight-bold">${flight.dTime.toTimeString().split(' ')[0].substring(0,5)}</span>
                     -
-                    <span class="font-weight-bold">${flight.aTime.getHours() + ":" + flight.aTime.getMinutes()}</span>
+                    <span class="font-weight-bold">${flight.aTime.toTimeString().split(' ')[0].substring(0,5)}</span>
                   </p>
                   <p class="text-muted">
                     Depart: ${flight.dTime.toLocaleString()}<br/>Arrive: ${flight.aTime.toLocaleString()}
@@ -92,12 +92,13 @@ import TopNav from '../topNav.marko'
                     <div class="col">
                       <p>
                         <b>${stop.from}</b> &#x21A6; <b>${stop.to}</b>
+                        <img src=`https://localhost:3000/airlinelogo/${stop.airlineId}`/>
                       </p>
                       <p>${stop.dTime.toLocaleString()} - ${stop.aTime.toLocaleString()}</p>
                     </div>
                   </div>
                 </for>
-                <!-- <div class="row">
+                <div class="row">
                   <div class="col">
                     <img src=`/img/climateIcons/${flight.dWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
                     <p>${flight.from}: ${flight.dWeather.summary} ${flight.dWeather.temperature}&#8457;</p>
@@ -106,7 +107,7 @@ import TopNav from '../topNav.marko'
                     <img src=`/img/climateIcons/${flight.aWeather.icon}.svg` onerror="this.onerror=null; this.src='/img/climateIcons/clear-day.svg'"/>
                     <p>${flight.to}: ${flight.aWeather.summary} ${flight.aWeather.temperature}&#8457;</p>
                   </div>
-                </div> -->
+                </div>
               </div>
             </div>
           </for>

@@ -10,9 +10,14 @@ import TopNav from '../topNav.marko'
   </@heading>
   <@content>
     <${TopNav}/>
-    <h1>Username: ${data.user.username}</h1>
-    <a class="btn btn-secondary" href="/logout">Log Out</a>
     <div class="container">
+      <div class='row'>
+        <h1>Username: ${data.user.username}</h1>
+        <a class="btn btn-secondary" href="/logout">Log Out</a>
+      </div>
+      <div class='row'>
+        <p> Your api key: <span id='api-key'>${data.apiKey}</span></p>
+      </div>
       <if(data.err)>
         <p class="text-danger">${data.err}</p>
       </if>

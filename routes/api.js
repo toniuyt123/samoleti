@@ -1,5 +1,5 @@
 const { cors, rawBody } = require('../middleware/miscwares.js');
-const { findRoute } = require('../util/flights.js');
+const { findRoute, getAllFlightPaths } = require('../util/flights.js');
 const { createEmailSchedule } = require('../util/emailUtils.js');
 
 const methods = {
@@ -13,6 +13,12 @@ const methods = {
     return new Promise(async (resolve) => {
       await createEmailSchedule(params);
       resolve('Deal notification scheduled successfully');
+    });
+  },
+
+  getAllFlightsPaths: (params) => {
+    return new Promise(async (resolve) => {
+      resolve(await getAllFlightPaths());
     });
   },
 };
@@ -52,6 +58,7 @@ module.exports = function (app) {
 
     if (jsonResult.length === 1) jsonResult = jsonResult[0];
 
+    console.log(jsonResult)
     res.status(200);
     res.send(jsonResult);
   });

@@ -1,5 +1,3 @@
-// const assert = require('assert');
-
 const bcrypt = require('bcrypt');
 
 const { assertUser, UserAssertionError } = require('../util/assert.js');
@@ -8,8 +6,8 @@ const { validateEmail, sendEmail } = require('../util/emailUtils.js');
 const { generateKey } = require('../util/util.js');
 const { createCustomer, createSubscription } = require('../util/integrations/stripe.js');
 const DBMethods = require('../util/dbMethods.js');
-const dbm = new DBMethods();
 const db = require('../util/db.js');
+const dbm = new DBMethods();
 
 const registerTemplate = require('../views/users/register.marko');
 const loginTemplate = require('../views/users/login.marko');
@@ -80,9 +78,11 @@ module.exports = function (app) {
       }
 
       await db.query(`
-        UPDATE users SET is_confirmed = True
+        UPDATE users 
+        SET is_confirmed = True, api_key = $apiKey
         WHERE id = $userId`, {
         userId: token.user_id,
+        apiKey: generateKey(),
       });
 
       await createCustomer(token.user_id);
@@ -166,6 +166,7 @@ module.exports = function (app) {
     return res.marko(accountTemplate, {
       user: user,
       plans: plans,
+      apiKey: user.is_confirmed ? user.api_key : 'Please confirm your email to get and api key',
       err: err,
     });
   }

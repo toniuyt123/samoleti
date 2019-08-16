@@ -28,9 +28,11 @@ function render(input, out, __component, component, state) {
             renderBody: function(out) {
               marko_dynamicTag(out, TopNav, null, null, null, null, __component, "7");
 
-              out.w("<h1>Username: " +
+              out.w("<div class=\"container\"><div class=\"row\"><h1>Username: " +
                 marko_escapeXml(data.user.username) +
-                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a><div class=\"container\">");
+                "</h1><a class=\"btn btn-secondary\" href=\"/logout\">Log Out</a></div><div class=\"row\"><p> Your api key: <span id=\"api-key\">" +
+                marko_escapeXml(data.apiKey) +
+                "</span></p></div>");
 
               if (data.err) {
                 out.w("<p class=\"text-danger\">" +

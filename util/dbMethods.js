@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const named = require('node-postgres-named');
 
 const { transaction } = require('./util.js');
 
@@ -7,13 +6,6 @@ class DBMethods {
   constructor () {
     this.db = require('./db.js');
     this.saltRounds = 10;
-  }
-
-  async getClient () {
-    var client = await this.db.connect();
-    named.patch(client);
-
-    return client;
   }
 
   async findUser (email) {

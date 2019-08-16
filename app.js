@@ -64,17 +64,24 @@ const headersOpt = {
 };
 
 async function test () {
-  const res = await request(
-    {
-      method: 'post',
-      url: 'http://localhost:8080/api',
-      // body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": { "lat": 42, "lng": 23 }, "to": ["CGN", "BGY"], "departureStart": "23/07/2019", "departureEnd": "24/07/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
-      body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100, "prefferedDestinations": [\'SOF\', \'CGN\'] }, "id": 1 }',
-      headers: headersOpt,
-    });
-  console.log(res);
+  try {
+    const res = await request(
+      {
+        method: 'post',
+        url: 'https://localhost:3000/api',
+        body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "BGY", "departureStart": "8/09/2019", "departureEnd": "10/09/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
+        // body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100, "prefferedDestinations": [\'SOF\', \'CGN\'] }, "id": 1 }',
+        headers: headersOpt,
+        agentOptions: {
+          ca: fs.readFileSync('server.cert'),
+          rejectUnauthorized: false,
+        },
+      });
+    console.log(res);
+  } catch (err) {
+    console.log(err);
+  }
 }
-
 // test();
 /*
 const weatherAPI = require('./util/integrations/darkSky.js');
@@ -89,5 +96,5 @@ weatherAPI.weather(42.697365, 23.305037);
 
 // const stripe = require('./util/integrations/stripe.js');
 // stripe.createPlansFromDb();
-// const { scanForFlights } = require('./util/integrations/kiwi.js');
-// scanForFlights();
+const { airlineLogos } = require('./util/integrations/kiwi.js');
+ airlineLogos();
