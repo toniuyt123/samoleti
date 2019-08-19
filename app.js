@@ -69,7 +69,7 @@ async function test () {
       {
         method: 'post',
         url: 'https://localhost:3000/api',
-        body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "BGY", "departureStart": "8/09/2019", "departureEnd": "10/09/2019 12:59:59", "filter": "shortest" }, "id": 1 }',
+        body: '{ "jsonrpc": "2.0", "method": "findRoute", "params": { "from": "SOF", "to": "BGY", "departureStart": "8/09/2019", "departureEnd": "9/09/2019 12:59:59" }, "id": 1 }',
         // body: '{ "jsonrpc": "2.0", "method": "setDealNotifications", "params": { "recipient": "22", "frequency": "7 18 * * *", "maxPrice": 100, "prefferedDestinations": [\'SOF\', \'CGN\'] }, "id": 1 }',
         headers: headersOpt,
         agentOptions: {
@@ -96,5 +96,5 @@ weatherAPI.weather(42.697365, 23.305037);
 
 // const stripe = require('./util/integrations/stripe.js');
 // stripe.createPlansFromDb();
-const { airlineLogos } = require('./util/integrations/kiwi.js');
- airlineLogos();
+// const { airlineLogos } = require('./util/integrations/kiwi.js');
+//  airlineLogos();

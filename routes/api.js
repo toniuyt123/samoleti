@@ -58,7 +58,6 @@ module.exports = function (app) {
 
     if (jsonResult.length === 1) jsonResult = jsonResult[0];
 
-    console.log(jsonResult)
     res.status(200);
     res.send(jsonResult);
   });

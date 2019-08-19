@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const db = require('../util/db.js');
+const db = require('./db.js');
 const { weather } = require('./integrations/darkSky.js');
 
 const findRoute = async (params) => {
@@ -15,12 +15,7 @@ const findRoute = async (params) => {
     params.to = [params.to];
   }
 
-  if (!params.departureStart) params.departureStart = new Date();
-  if (!params.departureEnd) {
-    let now = new Date();
-    params.departureEnd = new Date(now.setDate(now.getDate() + 7));
-  }
-
+  const finalFlights = [];
   const rawFlights = (await db.query(`
     
     SELECT airport_from, airport_to, id 
@@ -39,21 +34,50 @@ const findRoute = async (params) => {
     const to = flight.airport_to;
 
     if (!graph[from]) graph[from] = [];
-    if (!graph[from][to]) graph[from][to] = [];
-
-    graph[from].push([to, flight.id]);
+    if (!graph[from].includes(to)) graph[from].push(to);
   }
-
-  let flights = [];
+  let flightPaths = [];
   let airportsWeathers = {};
+
   for (let to of params.to) {
     if (to.lat && to.lng) {
       to = await findNearestAirport(to.lat, to.lng);
     }
-
     const paths = findAllPaths(graph, params.from, to);
 
-    for (const path of paths) {
+    for (let path of paths) {
+      let newPaths = [[]];
+      for (let i = 0; i < path.length - 1; i++) {
+        const dbFlights = (await db.query(`
+
+          SELECT *, a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to 
+          FROM Flights f
+          LEFT JOIN airports a1 ON a1.iata = f.airport_from
+          LEFT JOIN airports a2 ON a2.iata = f.airport_to
+          WHERE airport_from = $from AND airport_to = $to
+            AND d_time >= $dTime AND a_time <= $aTime
+          
+            `, {
+          from: path[i],
+          to: path[i + 1],
+          dTime: params.departureStart,
+          aTime: params.departureEnd,
+        })).rows;
+        let paths = [];
+        while (newPaths.length !== 0) {
+          let path = newPaths.pop();
+          for (let dbFlight of dbFlights) {
+            let extended = [...path];
+            extended.push(dbFlight);
+            paths.push(extended);
+          }
+        }
+        newPaths.push(...paths);
+      }
+      flightPaths.push(...newPaths);
+    }
+
+    for (let flightPath of flightPaths) {
       let data = {
         from: params.from,
         to,
@@ -66,20 +90,8 @@ const findRoute = async (params) => {
       let prevArrive = new Date('01-01-0001');
       let canConnect = true;
 
-      // Starts form 1 because first element does not contain flight id
-      for (let i = 1; i < path.length; i++) {
-        const flight = (await db.query(`
-
-          SELECT *, a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to 
-          FROM Flights f
-          LEFT JOIN airports a1 ON a1.iata = f.airport_from
-          LEFT JOIN airports a2 ON a2.iata = f.airport_to
-          WHERE f.id = $id
-          
-            `, {
-          id: path[i][1],
-        })).rows[0];
-        const flightData = dataFromFlight(flight);
+      for (let i = 0; i < flightPath.length; i++) {
+        const flightData = dataFromFlight(flightPath[i]);
 
         if (flightData.dTime < prevArrive) {
           canConnect = false;
@@ -88,12 +100,12 @@ const findRoute = async (params) => {
         }
         prevArrive = flightData.aTime;
 
-        if (i === 1) {
+        if (i === 0) {
           data['dTime'] = flightData.dTime;
           data['dWeather'] = await getForecastForAirport(
             airportsWeathers, flightData.from, flightData.dTime);
         }
-        if (i === path.length - 1) {
+        if (i === flightPath.length - 1) {
           data['aTime'] = flightData.aTime;
           data['aWeather'] = await getForecastForAirport(
             airportsWeathers, flightData.to, flightData.aTime);
@@ -102,21 +114,21 @@ const findRoute = async (params) => {
         data['totalPrice'] += +(flightData.price);
         data['totalDistance'] += +(flightData.distance);
         data['route'].push(flightData);
-        data['id'] += flightData.shopId + (i !== path.length - 1 ? '|' : '');
+        data['id'] += flightData.shopId + (i !== flightPath.length - 1 ? '|' : '');
       }
 
       if (!canConnect) continue;
 
       data['totalDistance'] = Math.round(data['totalDistance'] * 100) / 100;
       data['duration'] = (data['aTime'].getTime() - data['dTime'].getTime()) / (3600 * 1000);
-      flights.push(data);
+      finalFlights.push(data);
     }
   }
 
   if (params.filter === 'shortest') {
-    let shortest = flights[0];
+    let shortest = finalFlights[0];
 
-    for (const flight of flights) {
+    for (const flight of finalFlights) {
       if (flight.route.length < shortest.route.len) {
         shortest = flight;
       }
@@ -125,17 +137,17 @@ const findRoute = async (params) => {
     return shortest;
   }
 
-  return flights;
+  return finalFlights;
 };
 
 const findAllPaths = (graph, from, to, maxStopovers = 3) => {
   let queue = [];
-  queue.push([[from, '']]);
+  queue.push([from]);
   let paths = [];
 
   while (queue.length) {
     let path = queue.pop();
-    let lastNode = path[path.length - 1][0];
+    let lastNode = path[path.length - 1];
 
     if (lastNode === to) {
       paths.push(path);
@@ -147,9 +159,9 @@ const findAllPaths = (graph, from, to, maxStopovers = 3) => {
 
     if (path.length <= maxStopovers) {
       for (const node of graph[lastNode]) {
-        if (!path.includes(node[0])) {
+        if (!path.includes(node)) {
           let newPath = [...path];
-          newPath.push([node[0], node[1]]);
+          newPath.push(node);
           queue.unshift(newPath);
         }
       }
@@ -234,24 +246,6 @@ const filterFlights = (flights, params) => {
   return filtered;
 };
 
-const getAllFlightPaths = async () => {
-  const flights = (await db.query(`
-
-    SELECT DISTINCT a1.lat AS lat_from, a2.lat AS lat_to, a1.lng AS lng_from, a2.lng AS lng_to 
-    FROM Flights f
-    LEFT JOIN airports a1 ON a1.iata = f.airport_from
-    LEFT JOIN airports a2 ON a2.iata = f.airport_to
-    `)).rows;
-
-  const data = {};
-  data.route = [];
-  for (let flight of flights) {
-    data.route.push(dataFromFlight(flight));
-  }
-
-  return data;
-};
-
 module.exports = {
   findRoute,
   findAllPaths,
@@ -259,5 +253,4 @@ module.exports = {
   getForecastForAirport,
   dataFromFlight,
   filterFlights,
-  getAllFlightPaths,
 };

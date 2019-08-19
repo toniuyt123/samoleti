@@ -1,7 +1,6 @@
 const { findRoute, filterFlights } = require('../util/flights.js');
 const { sortArrayBy } = require('../util/util.js');
 const resultTemplate = require('../views/flights/search.marko');
-const db = require('../util/db.js');
 
 let cachedFlights = [];
 
@@ -56,11 +55,11 @@ module.exports = function (app) {
     }
   });
 
-  app.get('/airlinelogo/:id', async (req, res) => {
+  /* app.get('/airlinelogo/:id', async (req, res) => {
     const source = (await db.query(`SELECT logo FROM airlines WHERE id = $id`, {
       id: req.params.id,
     })).rows[0].logo;
-    
+
     res.send(new Buffer(`<img src='data:image/png;base64,${source.toString('base64')}'/>`));
-  });
+  }); */
 };
